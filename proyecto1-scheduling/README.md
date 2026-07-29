@@ -40,6 +40,13 @@ Ejemplos:
 ./simulador data/procesos50.txt 2    # dataset extendido de 50 procesos
 ```
 
+Atajos de conveniencia (compilan si hace falta y ejecutan por vos):
+
+```bash
+make run     # corre data/procesos.txt con quantum=2
+make demo    # corre las 4 combinaciones usadas en el documento IEEE (10 y 50 procesos, q=2 y q=4)
+```
+
 El programa corre FCFS y Round Robin sobre el mismo dataset y quantum indicados, e imprime para cada
 algoritmo: diagrama de Gantt ASCII, tiempos de espera/retorno por proceso, promedios y % de
 utilización de CPU.
