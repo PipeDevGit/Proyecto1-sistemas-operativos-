@@ -1,0 +1,83 @@
+=== Dataset: procesos.txt (10 procesos) ===
+
+--- Quantum = 2 ---
+=== FCFS ===
+| P1 | P2 | P3 | P4 | P5 | P6 | P7 | P8 | P9 | P10 |
+0    5    8   16   22   24   28   35   38   43    45
+
+--- FCFS: tiempos por proceso ---
+PID   Espera      Retorno
+P1    0           5
+P2    4           7
+P3    6           14
+P4    13          19
+P5    18          20
+P6    19          23
+P7    22          29
+P8    28          31
+P9    30          35
+P10   34          36
+Promedio espera:  17.40
+Promedio retorno: 21.90
+Utilizacion CPU:  100.00%
+
+=== Round Robin (quantum=2) ===
+| P1 | P2 | P3 | P1 | P4 | P5 | P2 | P6 | P7 | P3 | P8 | P9 | P1 | P10 | P4 | P6 | P7 | P3 | P8 | P9 | P4 | P7 | P3 | P9 | P7 |
+0    2    4    6    8   10   12   13   15   17   19   21   23   24    26   28   30   32   34   35   37   39   41   43   44   45
+
+--- Round Robin: tiempos por proceso ---
+PID   Espera      Retorno
+P1    19          24
+P2    9           12
+P3    33          41
+P4    30          36
+P5    6           8
+P6    21          25
+P7    32          39
+P8    25          28
+P9    31          36
+P10   15          17
+Promedio espera:  22.10
+Promedio retorno: 26.60
+Utilizacion CPU:  100.00%
+
+--- Quantum = 4 ---
+=== FCFS ===
+| P1 | P2 | P3 | P4 | P5 | P6 | P7 | P8 | P9 | P10 |
+0    5    8   16   22   24   28   35   38   43    45
+
+--- FCFS: tiempos por proceso ---
+PID   Espera      Retorno
+P1    0           5
+P2    4           7
+P3    6           14
+P4    13          19
+P5    18          20
+P6    19          23
+P7    22          29
+P8    28          31
+P9    30          35
+P10   34          36
+Promedio espera:  17.40
+Promedio retorno: 21.90
+Utilizacion CPU:  100.00%
+
+=== Round Robin (quantum=4) ===
+| P1 | P2 | P3 | P4 | P5 | P1 | P6 | P7 | P8 | P9 | P10 | P3 | P4 | P7 | P9 |
+0    4    7   11   15   17   18   22   26   29   33    35   39   41   44   45
+
+--- Round Robin: tiempos por proceso ---
+PID   Espera      Retorno
+P1    13          18
+P2    3           6
+P3    29          37
+P4    32          38
+P5    11          13
+P6    13          17
+P7    31          38
+P8    19          22
+P9    32          37
+P10   24          26
+Promedio espera:  20.70
+Promedio retorno: 25.20
+Utilizacion CPU:  100.00%

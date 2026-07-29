@@ -1,0 +1,6 @@
+# dataset con lineas malformadas a proposito, para probar Lector.cpp
+1,0,5
+2,x,3
+esto no es una linea valida
+4,3,-6
+5,4,2
