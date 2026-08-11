@@ -1,0 +1,238 @@
+==================
+WARNING: ThreadSanitizer: data race (pid=11406)
+  Read of size 4 at 0x7fffffffe848 by thread T2:
+    #0 BufferA::producir(Item const&, std::chrono::time_point<std::chrono::_V2::steady_clock, std::chrono::duration<long, std::ratio<1l, 1000000000l> > >) src/BufferA.h:49 (simulador_tsan+0x6e07) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #1 ejecutar<BufferA>(Config const&)::{lambda()#1}::operator()() const src/main.cpp:99 (simulador_tsan+0x9887) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #2 void std::__invoke_impl<void, ejecutar<BufferA>(Config const&)::{lambda()#1}>(std::__invoke_other, ejecutar<BufferA>(Config const&)::{lambda()#1}&&) /usr/include/c++/15/bits/invoke.h:63 (simulador_tsan+0x1b828) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #3 std::__invoke_result<ejecutar<BufferA>(Config const&)::{lambda()#1}>::type std::__invoke<ejecutar<BufferA>(Config const&)::{lambda()#1}>(ejecutar<BufferA>(Config const&)::{lambda()#1}&&) /usr/include/c++/15/bits/invoke.h:98 (simulador_tsan+0x1b3a0) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #4 void std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&)::{lambda()#1}> >::_M_invoke<0ul>(std::_Index_tuple<0ul>) /usr/include/c++/15/bits/std_thread.h:303 (simulador_tsan+0x1aef0) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #5 std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&)::{lambda()#1}> >::operator()() /usr/include/c++/15/bits/std_thread.h:310 (simulador_tsan+0x1ac00) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #6 std::thread::_State_impl<std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&)::{lambda()#1}> > >::_M_run() /usr/include/c++/15/bits/std_thread.h:255 (simulador_tsan+0x1a990) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #7 <null> <null> (libstdc++.so.6+0xf5ef8) (BuildId: 3a7a8c6bd922e6314edb7a710fdc0293265c2c42)
+
+  Previous write of size 4 at 0x7fffffffe848 by thread T1:
+    #0 BufferA::producir(Item const&, std::chrono::time_point<std::chrono::_V2::steady_clock, std::chrono::duration<long, std::ratio<1l, 1000000000l> > >) src/BufferA.h:81 (simulador_tsan+0x6f09) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #1 ejecutar<BufferA>(Config const&)::{lambda()#1}::operator()() const src/main.cpp:99 (simulador_tsan+0x9887) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #2 void std::__invoke_impl<void, ejecutar<BufferA>(Config const&)::{lambda()#1}>(std::__invoke_other, ejecutar<BufferA>(Config const&)::{lambda()#1}&&) /usr/include/c++/15/bits/invoke.h:63 (simulador_tsan+0x1b828) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #3 std::__invoke_result<ejecutar<BufferA>(Config const&)::{lambda()#1}>::type std::__invoke<ejecutar<BufferA>(Config const&)::{lambda()#1}>(ejecutar<BufferA>(Config const&)::{lambda()#1}&&) /usr/include/c++/15/bits/invoke.h:98 (simulador_tsan+0x1b3a0) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #4 void std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&)::{lambda()#1}> >::_M_invoke<0ul>(std::_Index_tuple<0ul>) /usr/include/c++/15/bits/std_thread.h:303 (simulador_tsan+0x1aef0) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #5 std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&)::{lambda()#1}> >::operator()() /usr/include/c++/15/bits/std_thread.h:310 (simulador_tsan+0x1ac00) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #6 std::thread::_State_impl<std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&)::{lambda()#1}> > >::_M_run() /usr/include/c++/15/bits/std_thread.h:255 (simulador_tsan+0x1a990) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #7 <null> <null> (libstdc++.so.6+0xf5ef8) (BuildId: 3a7a8c6bd922e6314edb7a710fdc0293265c2c42)
+
+  Location is stack of main thread.
+
+  Thread T2 (tid=11409, running) created by main thread at:
+    #0 pthread_create ../../../../src/libsanitizer/tsan/tsan_interceptors_posix.cpp:1078 (libtsan.so.2+0x5cb02) (BuildId: 66d37dc704b813df6c813b77217284deb43a0042)
+    #1 std::thread::_M_start_thread(std::unique_ptr<std::thread::_State, std::default_delete<std::thread::_State> >, void (*)()) <null> (libstdc++.so.6+0xf5ff0) (BuildId: 3a7a8c6bd922e6314edb7a710fdc0293265c2c42)
+    #2 void std::__new_allocator<std::thread>::construct<std::thread, ejecutar<BufferA>(Config const&)::{lambda()#1}>(std::thread*, ejecutar<BufferA>(Config const&)::{lambda()#1}&&) /usr/include/c++/15/bits/new_allocator.h:191 (simulador_tsan+0xf6b4) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #3 void std::allocator_traits<std::allocator<std::thread> >::construct<std::thread, ejecutar<BufferA>(Config const&)::{lambda()#1}>(std::allocator<std::thread>&, std::thread*, ejecutar<BufferA>(Config const&)::{lambda()#1}&&) /usr/include/c++/15/bits/alloc_traits.h:674 (simulador_tsan+0xf6b4)
+    #4 std::thread& std::vector<std::thread, std::allocator<std::thread> >::emplace_back<ejecutar<BufferA>(Config const&)::{lambda()#1}>(ejecutar<BufferA>(Config const&)::{lambda()#1}&&) /usr/include/c++/15/bits/vector.tcc:117 (simulador_tsan+0xf6b4)
+    #5 Metricas ejecutar<BufferA>(Config const&) src/main.cpp:89 (simulador_tsan+0xa360) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #6 main src/main.cpp:268 (simulador_tsan+0x5f63) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+
+  Thread T1 (tid=11408, running) created by main thread at:
+    #0 pthread_create ../../../../src/libsanitizer/tsan/tsan_interceptors_posix.cpp:1078 (libtsan.so.2+0x5cb02) (BuildId: 66d37dc704b813df6c813b77217284deb43a0042)
+    #1 std::thread::_M_start_thread(std::unique_ptr<std::thread::_State, std::default_delete<std::thread::_State> >, void (*)()) <null> (libstdc++.so.6+0xf5ff0) (BuildId: 3a7a8c6bd922e6314edb7a710fdc0293265c2c42)
+    #2 void std::__new_allocator<std::thread>::construct<std::thread, ejecutar<BufferA>(Config const&)::{lambda()#1}>(std::thread*, ejecutar<BufferA>(Config const&)::{lambda()#1}&&) /usr/include/c++/15/bits/new_allocator.h:191 (simulador_tsan+0xf6b4) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #3 void std::allocator_traits<std::allocator<std::thread> >::construct<std::thread, ejecutar<BufferA>(Config const&)::{lambda()#1}>(std::allocator<std::thread>&, std::thread*, ejecutar<BufferA>(Config const&)::{lambda()#1}&&) /usr/include/c++/15/bits/alloc_traits.h:674 (simulador_tsan+0xf6b4)
+    #4 std::thread& std::vector<std::thread, std::allocator<std::thread> >::emplace_back<ejecutar<BufferA>(Config const&)::{lambda()#1}>(ejecutar<BufferA>(Config const&)::{lambda()#1}&&) /usr/include/c++/15/bits/vector.tcc:117 (simulador_tsan+0xf6b4)
+    #5 Metricas ejecutar<BufferA>(Config const&) src/main.cpp:89 (simulador_tsan+0xa360) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #6 main src/main.cpp:268 (simulador_tsan+0x5f63) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+
+SUMMARY: ThreadSanitizer: data race src/BufferA.h:49 in BufferA::producir(Item const&, std::chrono::time_point<std::chrono::_V2::steady_clock, std::chrono::duration<long, std::ratio<1l, 1000000000l> > >)
+==================
+==================
+WARNING: ThreadSanitizer: data race (pid=11406)
+  Write of size 4 at 0x7fffffffe848 by thread T2:
+    #0 BufferA::producir(Item const&, std::chrono::time_point<std::chrono::_V2::steady_clock, std::chrono::duration<long, std::ratio<1l, 1000000000l> > >) src/BufferA.h:81 (simulador_tsan+0x6f09) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #1 ejecutar<BufferA>(Config const&)::{lambda()#1}::operator()() const src/main.cpp:99 (simulador_tsan+0x9887) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #2 void std::__invoke_impl<void, ejecutar<BufferA>(Config const&)::{lambda()#1}>(std::__invoke_other, ejecutar<BufferA>(Config const&)::{lambda()#1}&&) /usr/include/c++/15/bits/invoke.h:63 (simulador_tsan+0x1b828) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #3 std::__invoke_result<ejecutar<BufferA>(Config const&)::{lambda()#1}>::type std::__invoke<ejecutar<BufferA>(Config const&)::{lambda()#1}>(ejecutar<BufferA>(Config const&)::{lambda()#1}&&) /usr/include/c++/15/bits/invoke.h:98 (simulador_tsan+0x1b3a0) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #4 void std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&)::{lambda()#1}> >::_M_invoke<0ul>(std::_Index_tuple<0ul>) /usr/include/c++/15/bits/std_thread.h:303 (simulador_tsan+0x1aef0) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #5 std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&)::{lambda()#1}> >::operator()() /usr/include/c++/15/bits/std_thread.h:310 (simulador_tsan+0x1ac00) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #6 std::thread::_State_impl<std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&)::{lambda()#1}> > >::_M_run() /usr/include/c++/15/bits/std_thread.h:255 (simulador_tsan+0x1a990) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #7 <null> <null> (libstdc++.so.6+0xf5ef8) (BuildId: 3a7a8c6bd922e6314edb7a710fdc0293265c2c42)
+
+  Previous write of size 4 at 0x7fffffffe848 by thread T5:
+    #0 BufferA::consumir(Item&, std::chrono::time_point<std::chrono::_V2::steady_clock, std::chrono::duration<long, std::ratio<1l, 1000000000l> > >) src/BufferA.h:113 (simulador_tsan+0x70c3) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #1 ejecutar<BufferA>(Config const&)::{lambda()#2}::operator()() const src/main.cpp:120 (simulador_tsan+0x9d10) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #2 void std::__invoke_impl<void, ejecutar<BufferA>(Config const&)::{lambda()#2}>(std::__invoke_other, ejecutar<BufferA>(Config const&)::{lambda()#2}&&) /usr/include/c++/15/bits/invoke.h:63 (simulador_tsan+0x1b797) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #3 std::__invoke_result<ejecutar<BufferA>(Config const&)::{lambda()#2}>::type std::__invoke<ejecutar<BufferA>(Config const&)::{lambda()#2}>(ejecutar<BufferA>(Config const&)::{lambda()#2}&&) /usr/include/c++/15/bits/invoke.h:98 (simulador_tsan+0x1b30a) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #4 void std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&)::{lambda()#2}> >::_M_invoke<0ul>(std::_Index_tuple<0ul>) /usr/include/c++/15/bits/std_thread.h:303 (simulador_tsan+0x1ae92) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #5 std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&)::{lambda()#2}> >::operator()() /usr/include/c++/15/bits/std_thread.h:310 (simulador_tsan+0x1abb2) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #6 std::thread::_State_impl<std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&)::{lambda()#2}> > >::_M_run() /usr/include/c++/15/bits/std_thread.h:255 (simulador_tsan+0x1a93e) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #7 <null> <null> (libstdc++.so.6+0xf5ef8) (BuildId: 3a7a8c6bd922e6314edb7a710fdc0293265c2c42)
+
+  Location is stack of main thread.
+
+  Thread T2 (tid=11409, running) created by main thread at:
+    #0 pthread_create ../../../../src/libsanitizer/tsan/tsan_interceptors_posix.cpp:1078 (libtsan.so.2+0x5cb02) (BuildId: 66d37dc704b813df6c813b77217284deb43a0042)
+    #1 std::thread::_M_start_thread(std::unique_ptr<std::thread::_State, std::default_delete<std::thread::_State> >, void (*)()) <null> (libstdc++.so.6+0xf5ff0) (BuildId: 3a7a8c6bd922e6314edb7a710fdc0293265c2c42)
+    #2 void std::__new_allocator<std::thread>::construct<std::thread, ejecutar<BufferA>(Config const&)::{lambda()#1}>(std::thread*, ejecutar<BufferA>(Config const&)::{lambda()#1}&&) /usr/include/c++/15/bits/new_allocator.h:191 (simulador_tsan+0xf6b4) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #3 void std::allocator_traits<std::allocator<std::thread> >::construct<std::thread, ejecutar<BufferA>(Config const&)::{lambda()#1}>(std::allocator<std::thread>&, std::thread*, ejecutar<BufferA>(Config const&)::{lambda()#1}&&) /usr/include/c++/15/bits/alloc_traits.h:674 (simulador_tsan+0xf6b4)
+    #4 std::thread& std::vector<std::thread, std::allocator<std::thread> >::emplace_back<ejecutar<BufferA>(Config const&)::{lambda()#1}>(ejecutar<BufferA>(Config const&)::{lambda()#1}&&) /usr/include/c++/15/bits/vector.tcc:117 (simulador_tsan+0xf6b4)
+    #5 Metricas ejecutar<BufferA>(Config const&) src/main.cpp:89 (simulador_tsan+0xa360) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #6 main src/main.cpp:268 (simulador_tsan+0x5f63) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+
+  Thread T5 (tid=11412, running) created by main thread at:
+    #0 pthread_create ../../../../src/libsanitizer/tsan/tsan_interceptors_posix.cpp:1078 (libtsan.so.2+0x5cb02) (BuildId: 66d37dc704b813df6c813b77217284deb43a0042)
+    #1 std::thread::_M_start_thread(std::unique_ptr<std::thread::_State, std::default_delete<std::thread::_State> >, void (*)()) <null> (libstdc++.so.6+0xf5ff0) (BuildId: 3a7a8c6bd922e6314edb7a710fdc0293265c2c42)
+    #2 void std::__new_allocator<std::thread>::construct<std::thread, ejecutar<BufferA>(Config const&)::{lambda()#2}>(std::thread*, ejecutar<BufferA>(Config const&)::{lambda()#2}&&) /usr/include/c++/15/bits/new_allocator.h:191 (simulador_tsan+0xf9e8) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #3 void std::allocator_traits<std::allocator<std::thread> >::construct<std::thread, ejecutar<BufferA>(Config const&)::{lambda()#2}>(std::allocator<std::thread>&, std::thread*, ejecutar<BufferA>(Config const&)::{lambda()#2}&&) /usr/include/c++/15/bits/alloc_traits.h:674 (simulador_tsan+0xf9e8)
+    #4 std::thread& std::vector<std::thread, std::allocator<std::thread> >::emplace_back<ejecutar<BufferA>(Config const&)::{lambda()#2}>(ejecutar<BufferA>(Config const&)::{lambda()#2}&&) /usr/include/c++/15/bits/vector.tcc:117 (simulador_tsan+0xf9e8)
+    #5 Metricas ejecutar<BufferA>(Config const&) src/main.cpp:113 (simulador_tsan+0xa4b6) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #6 main src/main.cpp:268 (simulador_tsan+0x5f63) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+
+SUMMARY: ThreadSanitizer: data race src/BufferA.h:81 in BufferA::producir(Item const&, std::chrono::time_point<std::chrono::_V2::steady_clock, std::chrono::duration<long, std::ratio<1l, 1000000000l> > >)
+==================
+==================
+WARNING: ThreadSanitizer: data race (pid=11406)
+  Write of size 4 at 0x7fffffffe840 by thread T1:
+    #0 BufferA::producir(Item const&, std::chrono::time_point<std::chrono::_V2::steady_clock, std::chrono::duration<long, std::ratio<1l, 1000000000l> > >) src/BufferA.h:74 (simulador_tsan+0x6ed8) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #1 ejecutar<BufferA>(Config const&)::{lambda()#1}::operator()() const src/main.cpp:99 (simulador_tsan+0x9887) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #2 void std::__invoke_impl<void, ejecutar<BufferA>(Config const&)::{lambda()#1}>(std::__invoke_other, ejecutar<BufferA>(Config const&)::{lambda()#1}&&) /usr/include/c++/15/bits/invoke.h:63 (simulador_tsan+0x1b828) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #3 std::__invoke_result<ejecutar<BufferA>(Config const&)::{lambda()#1}>::type std::__invoke<ejecutar<BufferA>(Config const&)::{lambda()#1}>(ejecutar<BufferA>(Config const&)::{lambda()#1}&&) /usr/include/c++/15/bits/invoke.h:98 (simulador_tsan+0x1b3a0) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #4 void std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&)::{lambda()#1}> >::_M_invoke<0ul>(std::_Index_tuple<0ul>) /usr/include/c++/15/bits/std_thread.h:303 (simulador_tsan+0x1aef0) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #5 std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&)::{lambda()#1}> >::operator()() /usr/include/c++/15/bits/std_thread.h:310 (simulador_tsan+0x1ac00) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #6 std::thread::_State_impl<std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&)::{lambda()#1}> > >::_M_run() /usr/include/c++/15/bits/std_thread.h:255 (simulador_tsan+0x1a990) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #7 <null> <null> (libstdc++.so.6+0xf5ef8) (BuildId: 3a7a8c6bd922e6314edb7a710fdc0293265c2c42)
+
+  Previous write of size 4 at 0x7fffffffe840 by thread T2:
+    #0 BufferA::producir(Item const&, std::chrono::time_point<std::chrono::_V2::steady_clock, std::chrono::duration<long, std::ratio<1l, 1000000000l> > >) src/BufferA.h:74 (simulador_tsan+0x6ed8) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #1 ejecutar<BufferA>(Config const&)::{lambda()#1}::operator()() const src/main.cpp:99 (simulador_tsan+0x9887) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #2 void std::__invoke_impl<void, ejecutar<BufferA>(Config const&)::{lambda()#1}>(std::__invoke_other, ejecutar<BufferA>(Config const&)::{lambda()#1}&&) /usr/include/c++/15/bits/invoke.h:63 (simulador_tsan+0x1b828) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #3 std::__invoke_result<ejecutar<BufferA>(Config const&)::{lambda()#1}>::type std::__invoke<ejecutar<BufferA>(Config const&)::{lambda()#1}>(ejecutar<BufferA>(Config const&)::{lambda()#1}&&) /usr/include/c++/15/bits/invoke.h:98 (simulador_tsan+0x1b3a0) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #4 void std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&)::{lambda()#1}> >::_M_invoke<0ul>(std::_Index_tuple<0ul>) /usr/include/c++/15/bits/std_thread.h:303 (simulador_tsan+0x1aef0) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #5 std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&)::{lambda()#1}> >::operator()() /usr/include/c++/15/bits/std_thread.h:310 (simulador_tsan+0x1ac00) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #6 std::thread::_State_impl<std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&)::{lambda()#1}> > >::_M_run() /usr/include/c++/15/bits/std_thread.h:255 (simulador_tsan+0x1a990) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #7 <null> <null> (libstdc++.so.6+0xf5ef8) (BuildId: 3a7a8c6bd922e6314edb7a710fdc0293265c2c42)
+
+  Location is stack of main thread.
+
+  Thread T1 (tid=11408, running) created by main thread at:
+    #0 pthread_create ../../../../src/libsanitizer/tsan/tsan_interceptors_posix.cpp:1078 (libtsan.so.2+0x5cb02) (BuildId: 66d37dc704b813df6c813b77217284deb43a0042)
+    #1 std::thread::_M_start_thread(std::unique_ptr<std::thread::_State, std::default_delete<std::thread::_State> >, void (*)()) <null> (libstdc++.so.6+0xf5ff0) (BuildId: 3a7a8c6bd922e6314edb7a710fdc0293265c2c42)
+    #2 void std::__new_allocator<std::thread>::construct<std::thread, ejecutar<BufferA>(Config const&)::{lambda()#1}>(std::thread*, ejecutar<BufferA>(Config const&)::{lambda()#1}&&) /usr/include/c++/15/bits/new_allocator.h:191 (simulador_tsan+0xf6b4) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #3 void std::allocator_traits<std::allocator<std::thread> >::construct<std::thread, ejecutar<BufferA>(Config const&)::{lambda()#1}>(std::allocator<std::thread>&, std::thread*, ejecutar<BufferA>(Config const&)::{lambda()#1}&&) /usr/include/c++/15/bits/alloc_traits.h:674 (simulador_tsan+0xf6b4)
+    #4 std::thread& std::vector<std::thread, std::allocator<std::thread> >::emplace_back<ejecutar<BufferA>(Config const&)::{lambda()#1}>(ejecutar<BufferA>(Config const&)::{lambda()#1}&&) /usr/include/c++/15/bits/vector.tcc:117 (simulador_tsan+0xf6b4)
+    #5 Metricas ejecutar<BufferA>(Config const&) src/main.cpp:89 (simulador_tsan+0xa360) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #6 main src/main.cpp:268 (simulador_tsan+0x5f63) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+
+  Thread T2 (tid=11409, running) created by main thread at:
+    #0 pthread_create ../../../../src/libsanitizer/tsan/tsan_interceptors_posix.cpp:1078 (libtsan.so.2+0x5cb02) (BuildId: 66d37dc704b813df6c813b77217284deb43a0042)
+    #1 std::thread::_M_start_thread(std::unique_ptr<std::thread::_State, std::default_delete<std::thread::_State> >, void (*)()) <null> (libstdc++.so.6+0xf5ff0) (BuildId: 3a7a8c6bd922e6314edb7a710fdc0293265c2c42)
+    #2 void std::__new_allocator<std::thread>::construct<std::thread, ejecutar<BufferA>(Config const&)::{lambda()#1}>(std::thread*, ejecutar<BufferA>(Config const&)::{lambda()#1}&&) /usr/include/c++/15/bits/new_allocator.h:191 (simulador_tsan+0xf6b4) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #3 void std::allocator_traits<std::allocator<std::thread> >::construct<std::thread, ejecutar<BufferA>(Config const&)::{lambda()#1}>(std::allocator<std::thread>&, std::thread*, ejecutar<BufferA>(Config const&)::{lambda()#1}&&) /usr/include/c++/15/bits/alloc_traits.h:674 (simulador_tsan+0xf6b4)
+    #4 std::thread& std::vector<std::thread, std::allocator<std::thread> >::emplace_back<ejecutar<BufferA>(Config const&)::{lambda()#1}>(ejecutar<BufferA>(Config const&)::{lambda()#1}&&) /usr/include/c++/15/bits/vector.tcc:117 (simulador_tsan+0xf6b4)
+    #5 Metricas ejecutar<BufferA>(Config const&) src/main.cpp:89 (simulador_tsan+0xa360) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #6 main src/main.cpp:268 (simulador_tsan+0x5f63) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+
+SUMMARY: ThreadSanitizer: data race src/BufferA.h:74 in BufferA::producir(Item const&, std::chrono::time_point<std::chrono::_V2::steady_clock, std::chrono::duration<long, std::ratio<1l, 1000000000l> > >)
+==================
+==================
+WARNING: ThreadSanitizer: data race (pid=11406)
+  Write of size 4 at 0x7fffffffe848 by thread T1:
+    #0 BufferA::producir(Item const&, std::chrono::time_point<std::chrono::_V2::steady_clock, std::chrono::duration<long, std::ratio<1l, 1000000000l> > >) src/BufferA.h:81 (simulador_tsan+0x6f09) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #1 ejecutar<BufferA>(Config const&)::{lambda()#1}::operator()() const src/main.cpp:99 (simulador_tsan+0x9887) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #2 void std::__invoke_impl<void, ejecutar<BufferA>(Config const&)::{lambda()#1}>(std::__invoke_other, ejecutar<BufferA>(Config const&)::{lambda()#1}&&) /usr/include/c++/15/bits/invoke.h:63 (simulador_tsan+0x1b828) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #3 std::__invoke_result<ejecutar<BufferA>(Config const&)::{lambda()#1}>::type std::__invoke<ejecutar<BufferA>(Config const&)::{lambda()#1}>(ejecutar<BufferA>(Config const&)::{lambda()#1}&&) /usr/include/c++/15/bits/invoke.h:98 (simulador_tsan+0x1b3a0) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #4 void std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&)::{lambda()#1}> >::_M_invoke<0ul>(std::_Index_tuple<0ul>) /usr/include/c++/15/bits/std_thread.h:303 (simulador_tsan+0x1aef0) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #5 std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&)::{lambda()#1}> >::operator()() /usr/include/c++/15/bits/std_thread.h:310 (simulador_tsan+0x1ac00) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #6 std::thread::_State_impl<std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&)::{lambda()#1}> > >::_M_run() /usr/include/c++/15/bits/std_thread.h:255 (simulador_tsan+0x1a990) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #7 <null> <null> (libstdc++.so.6+0xf5ef8) (BuildId: 3a7a8c6bd922e6314edb7a710fdc0293265c2c42)
+
+  Previous write of size 4 at 0x7fffffffe848 by thread T2:
+    #0 BufferA::producir(Item const&, std::chrono::time_point<std::chrono::_V2::steady_clock, std::chrono::duration<long, std::ratio<1l, 1000000000l> > >) src/BufferA.h:81 (simulador_tsan+0x6f09) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #1 ejecutar<BufferA>(Config const&)::{lambda()#1}::operator()() const src/main.cpp:99 (simulador_tsan+0x9887) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #2 void std::__invoke_impl<void, ejecutar<BufferA>(Config const&)::{lambda()#1}>(std::__invoke_other, ejecutar<BufferA>(Config const&)::{lambda()#1}&&) /usr/include/c++/15/bits/invoke.h:63 (simulador_tsan+0x1b828) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #3 std::__invoke_result<ejecutar<BufferA>(Config const&)::{lambda()#1}>::type std::__invoke<ejecutar<BufferA>(Config const&)::{lambda()#1}>(ejecutar<BufferA>(Config const&)::{lambda()#1}&&) /usr/include/c++/15/bits/invoke.h:98 (simulador_tsan+0x1b3a0) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #4 void std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&)::{lambda()#1}> >::_M_invoke<0ul>(std::_Index_tuple<0ul>) /usr/include/c++/15/bits/std_thread.h:303 (simulador_tsan+0x1aef0) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #5 std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&)::{lambda()#1}> >::operator()() /usr/include/c++/15/bits/std_thread.h:310 (simulador_tsan+0x1ac00) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #6 std::thread::_State_impl<std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&)::{lambda()#1}> > >::_M_run() /usr/include/c++/15/bits/std_thread.h:255 (simulador_tsan+0x1a990) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #7 <null> <null> (libstdc++.so.6+0xf5ef8) (BuildId: 3a7a8c6bd922e6314edb7a710fdc0293265c2c42)
+
+  Location is stack of main thread.
+
+  Thread T1 (tid=11408, running) created by main thread at:
+    #0 pthread_create ../../../../src/libsanitizer/tsan/tsan_interceptors_posix.cpp:1078 (libtsan.so.2+0x5cb02) (BuildId: 66d37dc704b813df6c813b77217284deb43a0042)
+    #1 std::thread::_M_start_thread(std::unique_ptr<std::thread::_State, std::default_delete<std::thread::_State> >, void (*)()) <null> (libstdc++.so.6+0xf5ff0) (BuildId: 3a7a8c6bd922e6314edb7a710fdc0293265c2c42)
+    #2 void std::__new_allocator<std::thread>::construct<std::thread, ejecutar<BufferA>(Config const&)::{lambda()#1}>(std::thread*, ejecutar<BufferA>(Config const&)::{lambda()#1}&&) /usr/include/c++/15/bits/new_allocator.h:191 (simulador_tsan+0xf6b4) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #3 void std::allocator_traits<std::allocator<std::thread> >::construct<std::thread, ejecutar<BufferA>(Config const&)::{lambda()#1}>(std::allocator<std::thread>&, std::thread*, ejecutar<BufferA>(Config const&)::{lambda()#1}&&) /usr/include/c++/15/bits/alloc_traits.h:674 (simulador_tsan+0xf6b4)
+    #4 std::thread& std::vector<std::thread, std::allocator<std::thread> >::emplace_back<ejecutar<BufferA>(Config const&)::{lambda()#1}>(ejecutar<BufferA>(Config const&)::{lambda()#1}&&) /usr/include/c++/15/bits/vector.tcc:117 (simulador_tsan+0xf6b4)
+    #5 Metricas ejecutar<BufferA>(Config const&) src/main.cpp:89 (simulador_tsan+0xa360) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #6 main src/main.cpp:268 (simulador_tsan+0x5f63) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+
+  Thread T2 (tid=11409, running) created by main thread at:
+    #0 pthread_create ../../../../src/libsanitizer/tsan/tsan_interceptors_posix.cpp:1078 (libtsan.so.2+0x5cb02) (BuildId: 66d37dc704b813df6c813b77217284deb43a0042)
+    #1 std::thread::_M_start_thread(std::unique_ptr<std::thread::_State, std::default_delete<std::thread::_State> >, void (*)()) <null> (libstdc++.so.6+0xf5ff0) (BuildId: 3a7a8c6bd922e6314edb7a710fdc0293265c2c42)
+    #2 void std::__new_allocator<std::thread>::construct<std::thread, ejecutar<BufferA>(Config const&)::{lambda()#1}>(std::thread*, ejecutar<BufferA>(Config const&)::{lambda()#1}&&) /usr/include/c++/15/bits/new_allocator.h:191 (simulador_tsan+0xf6b4) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #3 void std::allocator_traits<std::allocator<std::thread> >::construct<std::thread, ejecutar<BufferA>(Config const&)::{lambda()#1}>(std::allocator<std::thread>&, std::thread*, ejecutar<BufferA>(Config const&)::{lambda()#1}&&) /usr/include/c++/15/bits/alloc_traits.h:674 (simulador_tsan+0xf6b4)
+    #4 std::thread& std::vector<std::thread, std::allocator<std::thread> >::emplace_back<ejecutar<BufferA>(Config const&)::{lambda()#1}>(ejecutar<BufferA>(Config const&)::{lambda()#1}&&) /usr/include/c++/15/bits/vector.tcc:117 (simulador_tsan+0xf6b4)
+    #5 Metricas ejecutar<BufferA>(Config const&) src/main.cpp:89 (simulador_tsan+0xa360) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #6 main src/main.cpp:268 (simulador_tsan+0x5f63) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+
+SUMMARY: ThreadSanitizer: data race src/BufferA.h:81 in BufferA::producir(Item const&, std::chrono::time_point<std::chrono::_V2::steady_clock, std::chrono::duration<long, std::ratio<1l, 1000000000l> > >)
+==================
+==================
+WARNING: ThreadSanitizer: data race (pid=11406)
+  Write of size 4 at 0x7fffffffe844 by thread T5:
+    #0 BufferA::consumir(Item&, std::chrono::time_point<std::chrono::_V2::steady_clock, std::chrono::duration<long, std::ratio<1l, 1000000000l> > >) src/BufferA.h:112 (simulador_tsan+0x7092) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #1 ejecutar<BufferA>(Config const&)::{lambda()#2}::operator()() const src/main.cpp:120 (simulador_tsan+0x9d10) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #2 void std::__invoke_impl<void, ejecutar<BufferA>(Config const&)::{lambda()#2}>(std::__invoke_other, ejecutar<BufferA>(Config const&)::{lambda()#2}&&) /usr/include/c++/15/bits/invoke.h:63 (simulador_tsan+0x1b797) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #3 std::__invoke_result<ejecutar<BufferA>(Config const&)::{lambda()#2}>::type std::__invoke<ejecutar<BufferA>(Config const&)::{lambda()#2}>(ejecutar<BufferA>(Config const&)::{lambda()#2}&&) /usr/include/c++/15/bits/invoke.h:98 (simulador_tsan+0x1b30a) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #4 void std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&)::{lambda()#2}> >::_M_invoke<0ul>(std::_Index_tuple<0ul>) /usr/include/c++/15/bits/std_thread.h:303 (simulador_tsan+0x1ae92) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #5 std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&)::{lambda()#2}> >::operator()() /usr/include/c++/15/bits/std_thread.h:310 (simulador_tsan+0x1abb2) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #6 std::thread::_State_impl<std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&)::{lambda()#2}> > >::_M_run() /usr/include/c++/15/bits/std_thread.h:255 (simulador_tsan+0x1a93e) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #7 <null> <null> (libstdc++.so.6+0xf5ef8) (BuildId: 3a7a8c6bd922e6314edb7a710fdc0293265c2c42)
+
+  Previous write of size 4 at 0x7fffffffe844 by thread T6:
+    #0 BufferA::consumir(Item&, std::chrono::time_point<std::chrono::_V2::steady_clock, std::chrono::duration<long, std::ratio<1l, 1000000000l> > >) src/BufferA.h:112 (simulador_tsan+0x7092) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #1 ejecutar<BufferA>(Config const&)::{lambda()#2}::operator()() const src/main.cpp:120 (simulador_tsan+0x9d10) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #2 void std::__invoke_impl<void, ejecutar<BufferA>(Config const&)::{lambda()#2}>(std::__invoke_other, ejecutar<BufferA>(Config const&)::{lambda()#2}&&) /usr/include/c++/15/bits/invoke.h:63 (simulador_tsan+0x1b797) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #3 std::__invoke_result<ejecutar<BufferA>(Config const&)::{lambda()#2}>::type std::__invoke<ejecutar<BufferA>(Config const&)::{lambda()#2}>(ejecutar<BufferA>(Config const&)::{lambda()#2}&&) /usr/include/c++/15/bits/invoke.h:98 (simulador_tsan+0x1b30a) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #4 void std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&)::{lambda()#2}> >::_M_invoke<0ul>(std::_Index_tuple<0ul>) /usr/include/c++/15/bits/std_thread.h:303 (simulador_tsan+0x1ae92) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #5 std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&)::{lambda()#2}> >::operator()() /usr/include/c++/15/bits/std_thread.h:310 (simulador_tsan+0x1abb2) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #6 std::thread::_State_impl<std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&)::{lambda()#2}> > >::_M_run() /usr/include/c++/15/bits/std_thread.h:255 (simulador_tsan+0x1a93e) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #7 <null> <null> (libstdc++.so.6+0xf5ef8) (BuildId: 3a7a8c6bd922e6314edb7a710fdc0293265c2c42)
+
+  Location is stack of main thread.
+
+  Thread T5 (tid=11412, running) created by main thread at:
+    #0 pthread_create ../../../../src/libsanitizer/tsan/tsan_interceptors_posix.cpp:1078 (libtsan.so.2+0x5cb02) (BuildId: 66d37dc704b813df6c813b77217284deb43a0042)
+    #1 std::thread::_M_start_thread(std::unique_ptr<std::thread::_State, std::default_delete<std::thread::_State> >, void (*)()) <null> (libstdc++.so.6+0xf5ff0) (BuildId: 3a7a8c6bd922e6314edb7a710fdc0293265c2c42)
+    #2 void std::__new_allocator<std::thread>::construct<std::thread, ejecutar<BufferA>(Config const&)::{lambda()#2}>(std::thread*, ejecutar<BufferA>(Config const&)::{lambda()#2}&&) /usr/include/c++/15/bits/new_allocator.h:191 (simulador_tsan+0xf9e8) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #3 void std::allocator_traits<std::allocator<std::thread> >::construct<std::thread, ejecutar<BufferA>(Config const&)::{lambda()#2}>(std::allocator<std::thread>&, std::thread*, ejecutar<BufferA>(Config const&)::{lambda()#2}&&) /usr/include/c++/15/bits/alloc_traits.h:674 (simulador_tsan+0xf9e8)
+    #4 std::thread& std::vector<std::thread, std::allocator<std::thread> >::emplace_back<ejecutar<BufferA>(Config const&)::{lambda()#2}>(ejecutar<BufferA>(Config const&)::{lambda()#2}&&) /usr/include/c++/15/bits/vector.tcc:117 (simulador_tsan+0xf9e8)
+    #5 Metricas ejecutar<BufferA>(Config const&) src/main.cpp:113 (simulador_tsan+0xa4b6) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #6 main src/main.cpp:268 (simulador_tsan+0x5f63) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+
+  Thread T6 (tid=11413, running) created by main thread at:
+    #0 pthread_create ../../../../src/libsanitizer/tsan/tsan_interceptors_posix.cpp:1078 (libtsan.so.2+0x5cb02) (BuildId: 66d37dc704b813df6c813b77217284deb43a0042)
+    #1 std::thread::_M_start_thread(std::unique_ptr<std::thread::_State, std::default_delete<std::thread::_State> >, void (*)()) <null> (libstdc++.so.6+0xf5ff0) (BuildId: 3a7a8c6bd922e6314edb7a710fdc0293265c2c42)
+    #2 void std::__new_allocator<std::thread>::construct<std::thread, ejecutar<BufferA>(Config const&)::{lambda()#2}>(std::thread*, ejecutar<BufferA>(Config const&)::{lambda()#2}&&) /usr/include/c++/15/bits/new_allocator.h:191 (simulador_tsan+0xf9e8) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #3 void std::allocator_traits<std::allocator<std::thread> >::construct<std::thread, ejecutar<BufferA>(Config const&)::{lambda()#2}>(std::allocator<std::thread>&, std::thread*, ejecutar<BufferA>(Config const&)::{lambda()#2}&&) /usr/include/c++/15/bits/alloc_traits.h:674 (simulador_tsan+0xf9e8)
+    #4 std::thread& std::vector<std::thread, std::allocator<std::thread> >::emplace_back<ejecutar<BufferA>(Config const&)::{lambda()#2}>(ejecutar<BufferA>(Config const&)::{lambda()#2}&&) /usr/include/c++/15/bits/vector.tcc:117 (simulador_tsan+0xf9e8)
+    #5 Metricas ejecutar<BufferA>(Config const&) src/main.cpp:113 (simulador_tsan+0xa4b6) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+    #6 main src/main.cpp:268 (simulador_tsan+0x5f63) (BuildId: bffbeffe324fb7785ae232371432aeffcc103c06)
+
+SUMMARY: ThreadSanitizer: data race src/BufferA.h:112 in BufferA::consumir(Item&, std::chrono::time_point<std::chrono::_V2::steady_clock, std::chrono::duration<long, std::ratio<1l, 1000000000l> > >)
+==================
+
++----------------------------------------------------+
+| VARIANTE A  4 prod / 4 cons / cap 8 / 2000 items |
++----------------------------------------------------+
+  Producidos                 2000
+  Consumidos                 2000
+  Perdidos                   1972
+  Duplicados                 1972
+  Fantasma                      0
+  Corruptos                     0
+  ------------------------------------
+  INCONSISTENCIAS            3944
+  Entregados OK                28  (validos, exactamente una vez)
+  Max cuenta observada       1094  (capacidad 8)  <-- VIOLACION
+  Tiempo                   0.2029 s
+  Tiempo por item OK    7245.6162 us
+
+ThreadSanitizer: reported 5 warnings

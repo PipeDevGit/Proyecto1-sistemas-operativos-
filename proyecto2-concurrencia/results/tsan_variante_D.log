@@ -1,0 +1,17 @@
+
++----------------------------------------------------+
+| VARIANTE D  4 prod / 4 cons / cap 8 / 2000 items |
++----------------------------------------------------+
+  Producidos                 2000
+  Consumidos                 2000
+  Perdidos                      0
+  Duplicados                    0
+  Fantasma                      0
+  Corruptos                     0
+  ------------------------------------
+  INCONSISTENCIAS               0
+  Entregados OK              2000  (validos, exactamente una vez)
+  Max cuenta observada          8  (capacidad 8)
+  Tiempo                   0.4218 s
+  Tiempo por item OK     210.9214 us
+
