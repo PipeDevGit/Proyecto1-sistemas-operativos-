@@ -1,0 +1,8 @@
+# Binarios: se generan con make, no se versionan.
+version_a/version_a
+version_a/version_a_tsan
+version_b/version_b
+version_b/version_b_tsan
+herramientas/reporte
+extras/extras
+extras/demo_deadlock

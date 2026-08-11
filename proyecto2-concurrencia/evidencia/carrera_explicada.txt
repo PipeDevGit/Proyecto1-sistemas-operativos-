@@ -1,0 +1,63 @@
+========================================================================
+EVIDENCIA DE CONDICION DE CARRERA - VERSION A
+========================================================================
+
+Eventos registrados                     : 102
+Items consumidos mas de una vez         : 8
+Operaciones sin cambio en la ocupacion  : 8
+  (un incremento o decremento se perdio: dos hilos leyeron el mismo
+   valor del contador y escribieron el mismo resultado)
+
+------------------------------------------------------------------------
+CASO 1 - ACTUALIZACION PERDIDA EN EL CONTADOR
+------------------------------------------------------------------------
+
+         0.3162   P1    PROD   2000008      9    3     2->3    -
+         0.3162   P1    PROD   2000009     10    4     3->4    -
+  >>>    0.3163   C0    CONS   2000007      8    2     3->3    si
+         0.3164   P1    PROD   2000010     11    0     3->4    -
+         0.3164   C0    CONS   2000008      9    3     3->2    si
+
+  El hilo C0 ejecuto una operacion de consumo y la ocupacion quedo en
+  3 antes y 3 despues: no cambio. El contador es una operacion de
+  lectura-modificacion-escritura en tres pasos; otro hilo leyo el
+  mismo valor, opero sobre el, y una de las dos escrituras piso a la
+  otra. El efecto de esta operacion se perdio por completo.
+
+------------------------------------------------------------------------
+CASO 2 - EL MISMO ITEM CONSUMIDO DOS VECES
+------------------------------------------------------------------------
+
+         0.3138   P1    PROD   2000005      6    0     4->5    -
+  >>>    0.3139   C0    CONS   2000001      2    1     4->3    si
+         0.3140   C0    CONS   2000002      3    2     3->4    si
+         0.3140   C0    CONS   2000003      4    3     4->3    si
+         0.3141   C0    CONS   2000004      5    4     3->2    si
+         0.3141   C0    CONS   2000005      6    0     2->1    si
+  >>>    0.3142   C0    CONS   2000001      2    1     1->0    si
+         0.3160   P1    PROD   2000006      7    1     0->1    -
+
+  El item id=2000001 se entrego a un consumidor dos veces, ambas desde
+  la posicion 1 del buffer.
+
+  Cadena causal: los decrementos perdidos del caso anterior dejan el
+  contador de ocupacion mas alto de lo que corresponde. Los
+  consumidores creen entonces que hay datos disponibles cuando el
+  buffer ya se vacio, avanzan el indice de lectura dando la vuelta
+  al anillo, y vuelven a leer una posicion que ningun productor ha
+  sobrescrito todavia. El item viejo se entrega por segunda vez.
+
+  Por eso la suma de los valores consumidos supera a la de los
+  producidos: no es que se hayan inventado items, es que algunos se
+  contaron dos veces.
+
+------------------------------------------------------------------------
+POR QUE ESTO NO PUEDE OCURRIR EN LA VERSION B
+------------------------------------------------------------------------
+
+  En la version A la comprobacion de que hay espacio (o datos) y la
+  escritura correspondiente son dos operaciones separadas: entre una y
+  otra, otro hilo puede ejecutarse. En la version B ambas ocurren
+  dentro del mismo bloqueo del mutex, de modo que ningun hilo puede
+  observar el estado intermedio ni actuar sobre el.
+

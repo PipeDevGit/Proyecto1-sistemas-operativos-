@@ -1,0 +1,23 @@
+
+================================================
+ VERSION A  -  sin sincronizacion
+================================================
+  Buffer (N)                       50
+  Productores                       2
+  Consumidores                      2
+  Items por productor           10000
+  Total esperado a producir     20000   (2 x 10000)
+
+  --- verificacion de invariantes (RF-4) ---
+  Producidos                    20000
+  Consumidos                    23216   <-- DIFIERE
+  Suma producida             100010000
+  Suma consumida             107574473   <-- DIFIERE
+  Perdidos                       6912
+  Duplicados                    10022
+  Fantasma                          0
+  Corruptos                       106
+  Ocupacion maxima                 51   (N = 50)  <-- EXCEDIO N
+  INVARIANTE: VIOLADO
+  Tiempo total                  4.890 ms
+

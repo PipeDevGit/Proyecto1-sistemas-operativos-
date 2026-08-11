@@ -1,61 +1,62 @@
-CXX      = g++
-CXXFLAGS = -std=c++17 -Wall -Wextra -pthread -O2 -Isrc
+# ---------------------------------------------------------------------------
+# Makefile raiz - Proyecto 2, Simulador de Concurrencia
+# TIIT2007 Sistemas Operativos - Universidad Invenio
+#
+# RNF-6: el proyecto compila con UN SOLO comando.
+#
+#   make               compila las dos versiones y las herramientas
+#   make experimentos  ejecuta el protocolo completo y muestra el reporte
+#   make evidencia     regenera el log de eventos y la carrera explicada
+#   make tsan          binarios con ThreadSanitizer y su contraste A vs B
+#   make clean
+#
+# Banderas usadas en todos los binarios: -std=c++17 -Wall -Wextra -pthread -O2
+# Cada version tiene ademas su propio Makefile y compila por separado.
+# ---------------------------------------------------------------------------
 
-SRC    = src/main.cpp src/Registro.cpp
-# Los headers van como dependencia explicita: sin esto, cambiar BufferA.h no
-# dispara la recompilacion y se terminan midiendo binarios viejos.
-HDR    = $(wildcard src/*.h)
-TARGET = simulador
+all: versiones herramientas extras
 
-# Binario aparte con ThreadSanitizer. Es SOLO para evidencia de carreras:
-# TSan hace el programa 5-15 veces mas lento, asi que los tiempos del
-# documento NUNCA salen de este binario.
-TSAN_FLAGS  = -std=c++17 -Wall -Wextra -pthread -g -fsanitize=thread -Isrc
-TSAN_TARGET = simulador_tsan
+versiones:
+	$(MAKE) -C version_a
+	$(MAKE) -C version_b
 
-DEADLOCK = demo_deadlock
-REPORTE  = reporte
+herramientas:
+	$(MAKE) -C herramientas
 
-all: $(TARGET) $(DEADLOCK) $(REPORTE)
+# Los extras NO son entregables exigidos; sostienen el analisis de RNF-5.
+extras:
+	$(MAKE) -C extras
 
-$(TARGET): $(SRC) $(HDR)
-	$(CXX) $(CXXFLAGS) -o $@ $(SRC)
+experimentos: versiones herramientas
+	./scripts/experimentos.sh
+	./herramientas/reporte evidencia/resultados.csv
 
-# scoped_lock necesita C++17, que ya es el estandar del proyecto.
-$(DEADLOCK): src/deadlock.cpp
-	$(CXX) $(CXXFLAGS) -o $@ src/deadlock.cpp
+evidencia: versiones
+	@mkdir -p evidencia
+	# El guion inicial es necesario: la version A devuelve 2 cuando viola el
+	# invariante, que es justamente lo que se espera de ella aqui.
+	-./version_a/version_a --capacidad 5 --productores 2 --consumidores 2 \
+	    --items 25 --sin-color --log evidencia/log_version_a.txt \
+	    > evidencia/salida_carrera.txt
+	python3 scripts/analizar_carrera.py evidencia/log_version_a.txt \
+	    > evidencia/carrera_explicada.txt
+	@echo "Evidencia regenerada en evidencia/"
 
-$(REPORTE): src/reporte.cpp
-	$(CXX) $(CXXFLAGS) -o $@ src/reporte.cpp
-
-tsan: $(SRC) $(HDR)
-	$(CXX) $(TSAN_FLAGS) -o $(TSAN_TARGET) $(SRC)
-
-# Corrida rapida de la version A
-run: $(TARGET)
-	./$(TARGET) --variante A
-
-# Evidencia de condicion de carrera con ThreadSanitizer
-race: tsan
-	./$(TSAN_TARGET) --variante A --items 2000
-
-# Demostracion de interbloqueo: primero se traba, despues las dos prevenciones
-deadlock: $(DEADLOCK)
-	-./$(DEADLOCK) --modo deadlock
-	./$(DEADLOCK) --modo orden
-	./$(DEADLOCK) --modo scoped
-
-# Regenera todos los resultados desde cero y muestra el reporte.
-experimentos: $(TARGET) $(REPORTE)
-	@rm -f results/experimentos.csv
-	@for i in 1 2 3 4 5; do \
-		for v in A B C D; do \
-			./$(TARGET) --variante $$v --sin-color --csv results/experimentos.csv > /dev/null; \
-		done; \
-	done
-	./$(REPORTE) results/experimentos.csv
+tsan:
+	$(MAKE) -C version_a tsan
+	$(MAKE) -C version_b tsan
+	@mkdir -p evidencia
+	-./version_a/version_a_tsan --capacidad 10 --productores 2 --consumidores 2 \
+	    --items 500 --sin-color > evidencia/tsan_version_a.log 2>&1
+	-./version_b/version_b_tsan --capacidad 10 --productores 2 --consumidores 2 \
+	    --items 500 --sin-color > evidencia/tsan_version_b.log 2>&1
+	@echo "carreras detectadas en la version A: $$(grep -c 'WARNING: ThreadSanitizer' evidencia/tsan_version_a.log)"
+	@echo "carreras detectadas en la version B: $$(grep -c 'WARNING: ThreadSanitizer' evidencia/tsan_version_b.log)"
 
 clean:
-	rm -f $(TARGET) $(TSAN_TARGET) $(DEADLOCK) $(REPORTE)
+	$(MAKE) -C version_a clean
+	$(MAKE) -C version_b clean
+	$(MAKE) -C herramientas clean
+	$(MAKE) -C extras clean
 
-.PHONY: all tsan run race deadlock clean
+.PHONY: all versiones herramientas extras experimentos evidencia tsan clean

@@ -1,6 +1,5 @@
 *.o
 simulador
-simulador_tsan
 demo_deadlock
 reporte
 *.exe

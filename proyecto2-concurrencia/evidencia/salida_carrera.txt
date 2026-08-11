@@ -1,0 +1,25 @@
+
+================================================
+ VERSION A  -  sin sincronizacion
+================================================
+  Buffer (N)                        5
+  Productores                       2
+  Consumidores                      2
+  Items por productor              25
+  Total esperado a producir        50   (2 x 25)
+
+  --- verificacion de invariantes (RF-4) ---
+  Producidos                       50
+  Consumidos                       52   <-- DIFIERE
+  Suma producida                  650
+  Suma consumida                  643   <-- DIFIERE
+  Perdidos                          6
+  Duplicados                        8
+  Fantasma                          0
+  Corruptos                         0
+  Ocupacion maxima                  5   (N = 5)
+  INVARIANTE: VIOLADO
+  Tiempo total                  1.554 ms
+
+  Log de eventos escrito en evidencia/log_version_a.txt
+

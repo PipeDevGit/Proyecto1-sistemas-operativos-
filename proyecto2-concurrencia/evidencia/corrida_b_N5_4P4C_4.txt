@@ -1,0 +1,23 @@
+
+================================================
+ VERSION B  -  mutex + variable de condicion
+================================================
+  Buffer (N)                        5
+  Productores                       4
+  Consumidores                      4
+  Items por productor            5000
+  Total esperado a producir     20000   (4 x 5000)
+
+  --- verificacion de invariantes (RF-4) ---
+  Producidos                    20000
+  Consumidos                    20000
+  Suma producida             50010000
+  Suma consumida             50010000
+  Perdidos                          0
+  Duplicados                        0
+  Fantasma                          0
+  Corruptos                         0
+  Ocupacion maxima                  5   (N = 5)
+  INVARIANTE: OK
+  Tiempo total                139.531 ms
+

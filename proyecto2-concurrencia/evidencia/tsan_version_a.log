@@ -1,0 +1,386 @@
+
+================================================
+ VERSION A  -  sin sincronizacion
+================================================
+  Buffer (N)                       10
+  Productores                       2
+  Consumidores                      2
+  Items por productor             500
+  Total esperado a producir      1000   (2 x 500)
+
+==================
+WARNING: ThreadSanitizer: data race (pid=16721)
+  Read of size 4 at 0x7fffffffe858 by thread T2:
+    #0 BufferA::producir(Item const&, Traza&) /home/felipe/TIIT2007-sistemas-operativos/proyecto2-concurrencia/version_a/BufferA.h:59 (version_a_tsan+0x5d47) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #1 ejecutar<BufferA>(Config const&, bool)::{lambda()#1}::operator()() const ../common/Ejecutor.h:132 (version_a_tsan+0x6b18) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #2 void std::__invoke_impl<void, ejecutar<BufferA>(Config const&, bool)::{lambda()#1}>(std::__invoke_other, ejecutar<BufferA>(Config const&, bool)::{lambda()#1}&&) /usr/include/c++/15/bits/invoke.h:63 (version_a_tsan+0x11c9e) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #3 std::__invoke_result<ejecutar<BufferA>(Config const&, bool)::{lambda()#1}>::type std::__invoke<ejecutar<BufferA>(Config const&, bool)::{lambda()#1}>(ejecutar<BufferA>(Config const&, bool)::{lambda()#1}&&) /usr/include/c++/15/bits/invoke.h:98 (version_a_tsan+0x11b7c) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #4 void std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&, bool)::{lambda()#1}> >::_M_invoke<0ul>(std::_Index_tuple<0ul>) /usr/include/c++/15/bits/std_thread.h:303 (version_a_tsan+0x11a50) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #5 std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&, bool)::{lambda()#1}> >::operator()() /usr/include/c++/15/bits/std_thread.h:310 (version_a_tsan+0x11994) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #6 std::thread::_State_impl<std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&, bool)::{lambda()#1}> > >::_M_run() /usr/include/c++/15/bits/std_thread.h:255 (version_a_tsan+0x118f8) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #7 <null> <null> (libstdc++.so.6+0xf5ef8) (BuildId: 3a7a8c6bd922e6314edb7a710fdc0293265c2c42)
+
+  Previous write of size 4 at 0x7fffffffe858 by thread T1:
+    #0 BufferA::producir(Item const&, Traza&) /home/felipe/TIIT2007-sistemas-operativos/proyecto2-concurrencia/version_a/BufferA.h:87 (version_a_tsan+0x5eb6) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #1 ejecutar<BufferA>(Config const&, bool)::{lambda()#1}::operator()() const ../common/Ejecutor.h:132 (version_a_tsan+0x6b18) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #2 void std::__invoke_impl<void, ejecutar<BufferA>(Config const&, bool)::{lambda()#1}>(std::__invoke_other, ejecutar<BufferA>(Config const&, bool)::{lambda()#1}&&) /usr/include/c++/15/bits/invoke.h:63 (version_a_tsan+0x11c9e) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #3 std::__invoke_result<ejecutar<BufferA>(Config const&, bool)::{lambda()#1}>::type std::__invoke<ejecutar<BufferA>(Config const&, bool)::{lambda()#1}>(ejecutar<BufferA>(Config const&, bool)::{lambda()#1}&&) /usr/include/c++/15/bits/invoke.h:98 (version_a_tsan+0x11b7c) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #4 void std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&, bool)::{lambda()#1}> >::_M_invoke<0ul>(std::_Index_tuple<0ul>) /usr/include/c++/15/bits/std_thread.h:303 (version_a_tsan+0x11a50) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #5 std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&, bool)::{lambda()#1}> >::operator()() /usr/include/c++/15/bits/std_thread.h:310 (version_a_tsan+0x11994) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #6 std::thread::_State_impl<std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&, bool)::{lambda()#1}> > >::_M_run() /usr/include/c++/15/bits/std_thread.h:255 (version_a_tsan+0x118f8) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #7 <null> <null> (libstdc++.so.6+0xf5ef8) (BuildId: 3a7a8c6bd922e6314edb7a710fdc0293265c2c42)
+
+  Location is stack of main thread.
+
+  Thread T2 (tid=16724, running) created by main thread at:
+    #0 pthread_create ../../../../src/libsanitizer/tsan/tsan_interceptors_posix.cpp:1078 (libtsan.so.2+0x5cb02) (BuildId: 66d37dc704b813df6c813b77217284deb43a0042)
+    #1 std::thread::_M_start_thread(std::unique_ptr<std::thread::_State, std::default_delete<std::thread::_State> >, void (*)()) <null> (libstdc++.so.6+0xf5ff0) (BuildId: 3a7a8c6bd922e6314edb7a710fdc0293265c2c42)
+    #2 void std::__new_allocator<std::thread>::construct<std::thread, ejecutar<BufferA>(Config const&, bool)::{lambda()#1}>(std::thread*, ejecutar<BufferA>(Config const&, bool)::{lambda()#1}&&) /usr/include/c++/15/bits/new_allocator.h:191 (version_a_tsan+0x966e) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #3 void std::allocator_traits<std::allocator<std::thread> >::construct<std::thread, ejecutar<BufferA>(Config const&, bool)::{lambda()#1}>(std::allocator<std::thread>&, std::thread*, ejecutar<BufferA>(Config const&, bool)::{lambda()#1}&&) /usr/include/c++/15/bits/alloc_traits.h:674 (version_a_tsan+0x966e)
+    #4 std::thread& std::vector<std::thread, std::allocator<std::thread> >::emplace_back<ejecutar<BufferA>(Config const&, bool)::{lambda()#1}>(ejecutar<BufferA>(Config const&, bool)::{lambda()#1}&&) /usr/include/c++/15/bits/vector.tcc:117 (version_a_tsan+0x966e)
+    #5 Metricas ejecutar<BufferA>(Config const&, bool) ../common/Ejecutor.h:127 (version_a_tsan+0x7652) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #6 main /home/felipe/TIIT2007-sistemas-operativos/proyecto2-concurrencia/version_a/main.cpp:20 (version_a_tsan+0x392f) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+
+  Thread T1 (tid=16723, running) created by main thread at:
+    #0 pthread_create ../../../../src/libsanitizer/tsan/tsan_interceptors_posix.cpp:1078 (libtsan.so.2+0x5cb02) (BuildId: 66d37dc704b813df6c813b77217284deb43a0042)
+    #1 std::thread::_M_start_thread(std::unique_ptr<std::thread::_State, std::default_delete<std::thread::_State> >, void (*)()) <null> (libstdc++.so.6+0xf5ff0) (BuildId: 3a7a8c6bd922e6314edb7a710fdc0293265c2c42)
+    #2 void std::__new_allocator<std::thread>::construct<std::thread, ejecutar<BufferA>(Config const&, bool)::{lambda()#1}>(std::thread*, ejecutar<BufferA>(Config const&, bool)::{lambda()#1}&&) /usr/include/c++/15/bits/new_allocator.h:191 (version_a_tsan+0x966e) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #3 void std::allocator_traits<std::allocator<std::thread> >::construct<std::thread, ejecutar<BufferA>(Config const&, bool)::{lambda()#1}>(std::allocator<std::thread>&, std::thread*, ejecutar<BufferA>(Config const&, bool)::{lambda()#1}&&) /usr/include/c++/15/bits/alloc_traits.h:674 (version_a_tsan+0x966e)
+    #4 std::thread& std::vector<std::thread, std::allocator<std::thread> >::emplace_back<ejecutar<BufferA>(Config const&, bool)::{lambda()#1}>(ejecutar<BufferA>(Config const&, bool)::{lambda()#1}&&) /usr/include/c++/15/bits/vector.tcc:117 (version_a_tsan+0x966e)
+    #5 Metricas ejecutar<BufferA>(Config const&, bool) ../common/Ejecutor.h:127 (version_a_tsan+0x7652) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #6 main /home/felipe/TIIT2007-sistemas-operativos/proyecto2-concurrencia/version_a/main.cpp:20 (version_a_tsan+0x392f) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+
+SUMMARY: ThreadSanitizer: data race /home/felipe/TIIT2007-sistemas-operativos/proyecto2-concurrencia/version_a/BufferA.h:59 in BufferA::producir(Item const&, Traza&)
+==================
+==================
+WARNING: ThreadSanitizer: data race (pid=16721)
+  Read of size 8 at 0x724c00000000 by thread T3:
+    #0 BufferA::consumir(Item&, Traza&) /home/felipe/TIIT2007-sistemas-operativos/proyecto2-concurrencia/version_a/BufferA.h:111 (version_a_tsan+0x5fed) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #1 ejecutar<BufferA>(Config const&, bool)::{lambda()#2}::operator()() const ../common/Ejecutor.h:155 (version_a_tsan+0x6f48) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #2 void std::__invoke_impl<void, ejecutar<BufferA>(Config const&, bool)::{lambda()#2}>(std::__invoke_other, ejecutar<BufferA>(Config const&, bool)::{lambda()#2}&&) /usr/include/c++/15/bits/invoke.h:63 (version_a_tsan+0x11c0d) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #3 std::__invoke_result<ejecutar<BufferA>(Config const&, bool)::{lambda()#2}>::type std::__invoke<ejecutar<BufferA>(Config const&, bool)::{lambda()#2}>(ejecutar<BufferA>(Config const&, bool)::{lambda()#2}&&) /usr/include/c++/15/bits/invoke.h:98 (version_a_tsan+0x11ae6) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #4 void std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&, bool)::{lambda()#2}> >::_M_invoke<0ul>(std::_Index_tuple<0ul>) /usr/include/c++/15/bits/std_thread.h:303 (version_a_tsan+0x119f2) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #5 std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&, bool)::{lambda()#2}> >::operator()() /usr/include/c++/15/bits/std_thread.h:310 (version_a_tsan+0x11946) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #6 std::thread::_State_impl<std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&, bool)::{lambda()#2}> > >::_M_run() /usr/include/c++/15/bits/std_thread.h:255 (version_a_tsan+0x118a6) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #7 <null> <null> (libstdc++.so.6+0xf5ef8) (BuildId: 3a7a8c6bd922e6314edb7a710fdc0293265c2c42)
+
+  Previous write of size 8 at 0x724c00000000 by thread T1:
+    #0 BufferA::producir(Item const&, Traza&) /home/felipe/TIIT2007-sistemas-operativos/proyecto2-concurrencia/version_a/BufferA.h:80 (version_a_tsan+0x5e05) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #1 ejecutar<BufferA>(Config const&, bool)::{lambda()#1}::operator()() const ../common/Ejecutor.h:132 (version_a_tsan+0x6b18) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #2 void std::__invoke_impl<void, ejecutar<BufferA>(Config const&, bool)::{lambda()#1}>(std::__invoke_other, ejecutar<BufferA>(Config const&, bool)::{lambda()#1}&&) /usr/include/c++/15/bits/invoke.h:63 (version_a_tsan+0x11c9e) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #3 std::__invoke_result<ejecutar<BufferA>(Config const&, bool)::{lambda()#1}>::type std::__invoke<ejecutar<BufferA>(Config const&, bool)::{lambda()#1}>(ejecutar<BufferA>(Config const&, bool)::{lambda()#1}&&) /usr/include/c++/15/bits/invoke.h:98 (version_a_tsan+0x11b7c) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #4 void std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&, bool)::{lambda()#1}> >::_M_invoke<0ul>(std::_Index_tuple<0ul>) /usr/include/c++/15/bits/std_thread.h:303 (version_a_tsan+0x11a50) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #5 std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&, bool)::{lambda()#1}> >::operator()() /usr/include/c++/15/bits/std_thread.h:310 (version_a_tsan+0x11994) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #6 std::thread::_State_impl<std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&, bool)::{lambda()#1}> > >::_M_run() /usr/include/c++/15/bits/std_thread.h:255 (version_a_tsan+0x118f8) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #7 <null> <null> (libstdc++.so.6+0xf5ef8) (BuildId: 3a7a8c6bd922e6314edb7a710fdc0293265c2c42)
+
+  Location is heap block of size 400 at 0x724c00000000 allocated by main thread:
+    #0 operator new(unsigned long) ../../../../src/libsanitizer/tsan/tsan_new_delete.cpp:64 (libtsan.so.2+0xaba12) (BuildId: 66d37dc704b813df6c813b77217284deb43a0042)
+    #1 std::__new_allocator<Item>::allocate(unsigned long, void const*) /usr/include/c++/15/bits/new_allocator.h:151 (version_a_tsan+0xf4be) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #2 std::allocator_traits<std::allocator<Item> >::allocate(std::allocator<Item>&, unsigned long) /usr/include/c++/15/bits/alloc_traits.h:614 (version_a_tsan+0xb2a1) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #3 std::_Vector_base<Item, std::allocator<Item> >::_M_allocate(unsigned long) /usr/include/c++/15/bits/stl_vector.h:387 (version_a_tsan+0xb2a1)
+    #4 std::_Vector_base<Item, std::allocator<Item> >::_M_create_storage(unsigned long) /usr/include/c++/15/bits/stl_vector.h:405 (version_a_tsan+0xa465) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #5 std::_Vector_base<Item, std::allocator<Item> >::_Vector_base(unsigned long, std::allocator<Item> const&) /usr/include/c++/15/bits/stl_vector.h:341 (version_a_tsan+0x83c6) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #6 std::vector<Item, std::allocator<Item> >::vector(unsigned long, Item const&, std::allocator<Item> const&) /usr/include/c++/15/bits/stl_vector.h:601 (version_a_tsan+0x6788) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #7 BufferA::BufferA(int) /home/felipe/TIIT2007-sistemas-operativos/proyecto2-concurrencia/version_a/BufferA.h:49 (version_a_tsan+0x5c3d) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #8 Metricas ejecutar<BufferA>(Config const&, bool) ../common/Ejecutor.h:102 (version_a_tsan+0x7278) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #9 main /home/felipe/TIIT2007-sistemas-operativos/proyecto2-concurrencia/version_a/main.cpp:20 (version_a_tsan+0x392f) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+
+  Thread T3 (tid=16725, running) created by main thread at:
+    #0 pthread_create ../../../../src/libsanitizer/tsan/tsan_interceptors_posix.cpp:1078 (libtsan.so.2+0x5cb02) (BuildId: 66d37dc704b813df6c813b77217284deb43a0042)
+    #1 std::thread::_M_start_thread(std::unique_ptr<std::thread::_State, std::default_delete<std::thread::_State> >, void (*)()) <null> (libstdc++.so.6+0xf5ff0) (BuildId: 3a7a8c6bd922e6314edb7a710fdc0293265c2c42)
+    #2 void std::__new_allocator<std::thread>::construct<std::thread, ejecutar<BufferA>(Config const&, bool)::{lambda()#2}>(std::thread*, ejecutar<BufferA>(Config const&, bool)::{lambda()#2}&&) /usr/include/c++/15/bits/new_allocator.h:191 (version_a_tsan+0x99ac) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #3 void std::allocator_traits<std::allocator<std::thread> >::construct<std::thread, ejecutar<BufferA>(Config const&, bool)::{lambda()#2}>(std::allocator<std::thread>&, std::thread*, ejecutar<BufferA>(Config const&, bool)::{lambda()#2}&&) /usr/include/c++/15/bits/alloc_traits.h:674 (version_a_tsan+0x99ac)
+    #4 std::thread& std::vector<std::thread, std::allocator<std::thread> >::emplace_back<ejecutar<BufferA>(Config const&, bool)::{lambda()#2}>(ejecutar<BufferA>(Config const&, bool)::{lambda()#2}&&) /usr/include/c++/15/bits/vector.tcc:117 (version_a_tsan+0x99ac)
+    #5 Metricas ejecutar<BufferA>(Config const&, bool) ../common/Ejecutor.h:150 (version_a_tsan+0x7727) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #6 main /home/felipe/TIIT2007-sistemas-operativos/proyecto2-concurrencia/version_a/main.cpp:20 (version_a_tsan+0x392f) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+
+  Thread T1 (tid=16723, running) created by main thread at:
+    #0 pthread_create ../../../../src/libsanitizer/tsan/tsan_interceptors_posix.cpp:1078 (libtsan.so.2+0x5cb02) (BuildId: 66d37dc704b813df6c813b77217284deb43a0042)
+    #1 std::thread::_M_start_thread(std::unique_ptr<std::thread::_State, std::default_delete<std::thread::_State> >, void (*)()) <null> (libstdc++.so.6+0xf5ff0) (BuildId: 3a7a8c6bd922e6314edb7a710fdc0293265c2c42)
+    #2 void std::__new_allocator<std::thread>::construct<std::thread, ejecutar<BufferA>(Config const&, bool)::{lambda()#1}>(std::thread*, ejecutar<BufferA>(Config const&, bool)::{lambda()#1}&&) /usr/include/c++/15/bits/new_allocator.h:191 (version_a_tsan+0x966e) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #3 void std::allocator_traits<std::allocator<std::thread> >::construct<std::thread, ejecutar<BufferA>(Config const&, bool)::{lambda()#1}>(std::allocator<std::thread>&, std::thread*, ejecutar<BufferA>(Config const&, bool)::{lambda()#1}&&) /usr/include/c++/15/bits/alloc_traits.h:674 (version_a_tsan+0x966e)
+    #4 std::thread& std::vector<std::thread, std::allocator<std::thread> >::emplace_back<ejecutar<BufferA>(Config const&, bool)::{lambda()#1}>(ejecutar<BufferA>(Config const&, bool)::{lambda()#1}&&) /usr/include/c++/15/bits/vector.tcc:117 (version_a_tsan+0x966e)
+    #5 Metricas ejecutar<BufferA>(Config const&, bool) ../common/Ejecutor.h:127 (version_a_tsan+0x7652) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #6 main /home/felipe/TIIT2007-sistemas-operativos/proyecto2-concurrencia/version_a/main.cpp:20 (version_a_tsan+0x392f) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+
+SUMMARY: ThreadSanitizer: data race /home/felipe/TIIT2007-sistemas-operativos/proyecto2-concurrencia/version_a/BufferA.h:111 in BufferA::consumir(Item&, Traza&)
+==================
+==================
+WARNING: ThreadSanitizer: data race (pid=16721)
+  Read of size 4 at 0x7fffffffe850 by thread T2:
+    #0 BufferA::producir(Item const&, Traza&) /home/felipe/TIIT2007-sistemas-operativos/proyecto2-concurrencia/version_a/BufferA.h:76 (version_a_tsan+0x5d79) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #1 ejecutar<BufferA>(Config const&, bool)::{lambda()#1}::operator()() const ../common/Ejecutor.h:132 (version_a_tsan+0x6b18) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #2 void std::__invoke_impl<void, ejecutar<BufferA>(Config const&, bool)::{lambda()#1}>(std::__invoke_other, ejecutar<BufferA>(Config const&, bool)::{lambda()#1}&&) /usr/include/c++/15/bits/invoke.h:63 (version_a_tsan+0x11c9e) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #3 std::__invoke_result<ejecutar<BufferA>(Config const&, bool)::{lambda()#1}>::type std::__invoke<ejecutar<BufferA>(Config const&, bool)::{lambda()#1}>(ejecutar<BufferA>(Config const&, bool)::{lambda()#1}&&) /usr/include/c++/15/bits/invoke.h:98 (version_a_tsan+0x11b7c) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #4 void std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&, bool)::{lambda()#1}> >::_M_invoke<0ul>(std::_Index_tuple<0ul>) /usr/include/c++/15/bits/std_thread.h:303 (version_a_tsan+0x11a50) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #5 std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&, bool)::{lambda()#1}> >::operator()() /usr/include/c++/15/bits/std_thread.h:310 (version_a_tsan+0x11994) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #6 std::thread::_State_impl<std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&, bool)::{lambda()#1}> > >::_M_run() /usr/include/c++/15/bits/std_thread.h:255 (version_a_tsan+0x118f8) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #7 <null> <null> (libstdc++.so.6+0xf5ef8) (BuildId: 3a7a8c6bd922e6314edb7a710fdc0293265c2c42)
+
+  Previous write of size 4 at 0x7fffffffe850 by thread T1:
+    #0 BufferA::producir(Item const&, Traza&) /home/felipe/TIIT2007-sistemas-operativos/proyecto2-concurrencia/version_a/BufferA.h:81 (version_a_tsan+0x5e85) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #1 ejecutar<BufferA>(Config const&, bool)::{lambda()#1}::operator()() const ../common/Ejecutor.h:132 (version_a_tsan+0x6b18) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #2 void std::__invoke_impl<void, ejecutar<BufferA>(Config const&, bool)::{lambda()#1}>(std::__invoke_other, ejecutar<BufferA>(Config const&, bool)::{lambda()#1}&&) /usr/include/c++/15/bits/invoke.h:63 (version_a_tsan+0x11c9e) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #3 std::__invoke_result<ejecutar<BufferA>(Config const&, bool)::{lambda()#1}>::type std::__invoke<ejecutar<BufferA>(Config const&, bool)::{lambda()#1}>(ejecutar<BufferA>(Config const&, bool)::{lambda()#1}&&) /usr/include/c++/15/bits/invoke.h:98 (version_a_tsan+0x11b7c) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #4 void std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&, bool)::{lambda()#1}> >::_M_invoke<0ul>(std::_Index_tuple<0ul>) /usr/include/c++/15/bits/std_thread.h:303 (version_a_tsan+0x11a50) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #5 std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&, bool)::{lambda()#1}> >::operator()() /usr/include/c++/15/bits/std_thread.h:310 (version_a_tsan+0x11994) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #6 std::thread::_State_impl<std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&, bool)::{lambda()#1}> > >::_M_run() /usr/include/c++/15/bits/std_thread.h:255 (version_a_tsan+0x118f8) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #7 <null> <null> (libstdc++.so.6+0xf5ef8) (BuildId: 3a7a8c6bd922e6314edb7a710fdc0293265c2c42)
+
+  Location is stack of main thread.
+
+  Thread T2 (tid=16724, running) created by main thread at:
+    #0 pthread_create ../../../../src/libsanitizer/tsan/tsan_interceptors_posix.cpp:1078 (libtsan.so.2+0x5cb02) (BuildId: 66d37dc704b813df6c813b77217284deb43a0042)
+    #1 std::thread::_M_start_thread(std::unique_ptr<std::thread::_State, std::default_delete<std::thread::_State> >, void (*)()) <null> (libstdc++.so.6+0xf5ff0) (BuildId: 3a7a8c6bd922e6314edb7a710fdc0293265c2c42)
+    #2 void std::__new_allocator<std::thread>::construct<std::thread, ejecutar<BufferA>(Config const&, bool)::{lambda()#1}>(std::thread*, ejecutar<BufferA>(Config const&, bool)::{lambda()#1}&&) /usr/include/c++/15/bits/new_allocator.h:191 (version_a_tsan+0x966e) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #3 void std::allocator_traits<std::allocator<std::thread> >::construct<std::thread, ejecutar<BufferA>(Config const&, bool)::{lambda()#1}>(std::allocator<std::thread>&, std::thread*, ejecutar<BufferA>(Config const&, bool)::{lambda()#1}&&) /usr/include/c++/15/bits/alloc_traits.h:674 (version_a_tsan+0x966e)
+    #4 std::thread& std::vector<std::thread, std::allocator<std::thread> >::emplace_back<ejecutar<BufferA>(Config const&, bool)::{lambda()#1}>(ejecutar<BufferA>(Config const&, bool)::{lambda()#1}&&) /usr/include/c++/15/bits/vector.tcc:117 (version_a_tsan+0x966e)
+    #5 Metricas ejecutar<BufferA>(Config const&, bool) ../common/Ejecutor.h:127 (version_a_tsan+0x7652) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #6 main /home/felipe/TIIT2007-sistemas-operativos/proyecto2-concurrencia/version_a/main.cpp:20 (version_a_tsan+0x392f) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+
+  Thread T1 (tid=16723, running) created by main thread at:
+    #0 pthread_create ../../../../src/libsanitizer/tsan/tsan_interceptors_posix.cpp:1078 (libtsan.so.2+0x5cb02) (BuildId: 66d37dc704b813df6c813b77217284deb43a0042)
+    #1 std::thread::_M_start_thread(std::unique_ptr<std::thread::_State, std::default_delete<std::thread::_State> >, void (*)()) <null> (libstdc++.so.6+0xf5ff0) (BuildId: 3a7a8c6bd922e6314edb7a710fdc0293265c2c42)
+    #2 void std::__new_allocator<std::thread>::construct<std::thread, ejecutar<BufferA>(Config const&, bool)::{lambda()#1}>(std::thread*, ejecutar<BufferA>(Config const&, bool)::{lambda()#1}&&) /usr/include/c++/15/bits/new_allocator.h:191 (version_a_tsan+0x966e) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #3 void std::allocator_traits<std::allocator<std::thread> >::construct<std::thread, ejecutar<BufferA>(Config const&, bool)::{lambda()#1}>(std::allocator<std::thread>&, std::thread*, ejecutar<BufferA>(Config const&, bool)::{lambda()#1}&&) /usr/include/c++/15/bits/alloc_traits.h:674 (version_a_tsan+0x966e)
+    #4 std::thread& std::vector<std::thread, std::allocator<std::thread> >::emplace_back<ejecutar<BufferA>(Config const&, bool)::{lambda()#1}>(ejecutar<BufferA>(Config const&, bool)::{lambda()#1}&&) /usr/include/c++/15/bits/vector.tcc:117 (version_a_tsan+0x966e)
+    #5 Metricas ejecutar<BufferA>(Config const&, bool) ../common/Ejecutor.h:127 (version_a_tsan+0x7652) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #6 main /home/felipe/TIIT2007-sistemas-operativos/proyecto2-concurrencia/version_a/main.cpp:20 (version_a_tsan+0x392f) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+
+SUMMARY: ThreadSanitizer: data race /home/felipe/TIIT2007-sistemas-operativos/proyecto2-concurrencia/version_a/BufferA.h:76 in BufferA::producir(Item const&, Traza&)
+==================
+==================
+WARNING: ThreadSanitizer: data race (pid=16721)
+  Write of size 4 at 0x7fffffffe858 by thread T2:
+    #0 BufferA::producir(Item const&, Traza&) /home/felipe/TIIT2007-sistemas-operativos/proyecto2-concurrencia/version_a/BufferA.h:87 (version_a_tsan+0x5eb6) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #1 ejecutar<BufferA>(Config const&, bool)::{lambda()#1}::operator()() const ../common/Ejecutor.h:132 (version_a_tsan+0x6b18) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #2 void std::__invoke_impl<void, ejecutar<BufferA>(Config const&, bool)::{lambda()#1}>(std::__invoke_other, ejecutar<BufferA>(Config const&, bool)::{lambda()#1}&&) /usr/include/c++/15/bits/invoke.h:63 (version_a_tsan+0x11c9e) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #3 std::__invoke_result<ejecutar<BufferA>(Config const&, bool)::{lambda()#1}>::type std::__invoke<ejecutar<BufferA>(Config const&, bool)::{lambda()#1}>(ejecutar<BufferA>(Config const&, bool)::{lambda()#1}&&) /usr/include/c++/15/bits/invoke.h:98 (version_a_tsan+0x11b7c) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #4 void std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&, bool)::{lambda()#1}> >::_M_invoke<0ul>(std::_Index_tuple<0ul>) /usr/include/c++/15/bits/std_thread.h:303 (version_a_tsan+0x11a50) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #5 std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&, bool)::{lambda()#1}> >::operator()() /usr/include/c++/15/bits/std_thread.h:310 (version_a_tsan+0x11994) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #6 std::thread::_State_impl<std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&, bool)::{lambda()#1}> > >::_M_run() /usr/include/c++/15/bits/std_thread.h:255 (version_a_tsan+0x118f8) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #7 <null> <null> (libstdc++.so.6+0xf5ef8) (BuildId: 3a7a8c6bd922e6314edb7a710fdc0293265c2c42)
+
+  Previous write of size 4 at 0x7fffffffe858 by thread T3:
+    #0 BufferA::consumir(Item&, Traza&) /home/felipe/TIIT2007-sistemas-operativos/proyecto2-concurrencia/version_a/BufferA.h:113 (version_a_tsan+0x608d) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #1 ejecutar<BufferA>(Config const&, bool)::{lambda()#2}::operator()() const ../common/Ejecutor.h:155 (version_a_tsan+0x6f48) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #2 void std::__invoke_impl<void, ejecutar<BufferA>(Config const&, bool)::{lambda()#2}>(std::__invoke_other, ejecutar<BufferA>(Config const&, bool)::{lambda()#2}&&) /usr/include/c++/15/bits/invoke.h:63 (version_a_tsan+0x11c0d) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #3 std::__invoke_result<ejecutar<BufferA>(Config const&, bool)::{lambda()#2}>::type std::__invoke<ejecutar<BufferA>(Config const&, bool)::{lambda()#2}>(ejecutar<BufferA>(Config const&, bool)::{lambda()#2}&&) /usr/include/c++/15/bits/invoke.h:98 (version_a_tsan+0x11ae6) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #4 void std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&, bool)::{lambda()#2}> >::_M_invoke<0ul>(std::_Index_tuple<0ul>) /usr/include/c++/15/bits/std_thread.h:303 (version_a_tsan+0x119f2) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #5 std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&, bool)::{lambda()#2}> >::operator()() /usr/include/c++/15/bits/std_thread.h:310 (version_a_tsan+0x11946) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #6 std::thread::_State_impl<std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&, bool)::{lambda()#2}> > >::_M_run() /usr/include/c++/15/bits/std_thread.h:255 (version_a_tsan+0x118a6) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #7 <null> <null> (libstdc++.so.6+0xf5ef8) (BuildId: 3a7a8c6bd922e6314edb7a710fdc0293265c2c42)
+
+  Location is stack of main thread.
+
+  Thread T2 (tid=16724, running) created by main thread at:
+    #0 pthread_create ../../../../src/libsanitizer/tsan/tsan_interceptors_posix.cpp:1078 (libtsan.so.2+0x5cb02) (BuildId: 66d37dc704b813df6c813b77217284deb43a0042)
+    #1 std::thread::_M_start_thread(std::unique_ptr<std::thread::_State, std::default_delete<std::thread::_State> >, void (*)()) <null> (libstdc++.so.6+0xf5ff0) (BuildId: 3a7a8c6bd922e6314edb7a710fdc0293265c2c42)
+    #2 void std::__new_allocator<std::thread>::construct<std::thread, ejecutar<BufferA>(Config const&, bool)::{lambda()#1}>(std::thread*, ejecutar<BufferA>(Config const&, bool)::{lambda()#1}&&) /usr/include/c++/15/bits/new_allocator.h:191 (version_a_tsan+0x966e) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #3 void std::allocator_traits<std::allocator<std::thread> >::construct<std::thread, ejecutar<BufferA>(Config const&, bool)::{lambda()#1}>(std::allocator<std::thread>&, std::thread*, ejecutar<BufferA>(Config const&, bool)::{lambda()#1}&&) /usr/include/c++/15/bits/alloc_traits.h:674 (version_a_tsan+0x966e)
+    #4 std::thread& std::vector<std::thread, std::allocator<std::thread> >::emplace_back<ejecutar<BufferA>(Config const&, bool)::{lambda()#1}>(ejecutar<BufferA>(Config const&, bool)::{lambda()#1}&&) /usr/include/c++/15/bits/vector.tcc:117 (version_a_tsan+0x966e)
+    #5 Metricas ejecutar<BufferA>(Config const&, bool) ../common/Ejecutor.h:127 (version_a_tsan+0x7652) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #6 main /home/felipe/TIIT2007-sistemas-operativos/proyecto2-concurrencia/version_a/main.cpp:20 (version_a_tsan+0x392f) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+
+  Thread T3 (tid=16725, running) created by main thread at:
+    #0 pthread_create ../../../../src/libsanitizer/tsan/tsan_interceptors_posix.cpp:1078 (libtsan.so.2+0x5cb02) (BuildId: 66d37dc704b813df6c813b77217284deb43a0042)
+    #1 std::thread::_M_start_thread(std::unique_ptr<std::thread::_State, std::default_delete<std::thread::_State> >, void (*)()) <null> (libstdc++.so.6+0xf5ff0) (BuildId: 3a7a8c6bd922e6314edb7a710fdc0293265c2c42)
+    #2 void std::__new_allocator<std::thread>::construct<std::thread, ejecutar<BufferA>(Config const&, bool)::{lambda()#2}>(std::thread*, ejecutar<BufferA>(Config const&, bool)::{lambda()#2}&&) /usr/include/c++/15/bits/new_allocator.h:191 (version_a_tsan+0x99ac) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #3 void std::allocator_traits<std::allocator<std::thread> >::construct<std::thread, ejecutar<BufferA>(Config const&, bool)::{lambda()#2}>(std::allocator<std::thread>&, std::thread*, ejecutar<BufferA>(Config const&, bool)::{lambda()#2}&&) /usr/include/c++/15/bits/alloc_traits.h:674 (version_a_tsan+0x99ac)
+    #4 std::thread& std::vector<std::thread, std::allocator<std::thread> >::emplace_back<ejecutar<BufferA>(Config const&, bool)::{lambda()#2}>(ejecutar<BufferA>(Config const&, bool)::{lambda()#2}&&) /usr/include/c++/15/bits/vector.tcc:117 (version_a_tsan+0x99ac)
+    #5 Metricas ejecutar<BufferA>(Config const&, bool) ../common/Ejecutor.h:150 (version_a_tsan+0x7727) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #6 main /home/felipe/TIIT2007-sistemas-operativos/proyecto2-concurrencia/version_a/main.cpp:20 (version_a_tsan+0x392f) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+
+SUMMARY: ThreadSanitizer: data race /home/felipe/TIIT2007-sistemas-operativos/proyecto2-concurrencia/version_a/BufferA.h:87 in BufferA::producir(Item const&, Traza&)
+==================
+==================
+WARNING: ThreadSanitizer: data race (pid=16721)
+  Write of size 4 at 0x7fffffffe850 by thread T1:
+    #0 BufferA::producir(Item const&, Traza&) /home/felipe/TIIT2007-sistemas-operativos/proyecto2-concurrencia/version_a/BufferA.h:81 (version_a_tsan+0x5e85) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #1 ejecutar<BufferA>(Config const&, bool)::{lambda()#1}::operator()() const ../common/Ejecutor.h:132 (version_a_tsan+0x6b18) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #2 void std::__invoke_impl<void, ejecutar<BufferA>(Config const&, bool)::{lambda()#1}>(std::__invoke_other, ejecutar<BufferA>(Config const&, bool)::{lambda()#1}&&) /usr/include/c++/15/bits/invoke.h:63 (version_a_tsan+0x11c9e) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #3 std::__invoke_result<ejecutar<BufferA>(Config const&, bool)::{lambda()#1}>::type std::__invoke<ejecutar<BufferA>(Config const&, bool)::{lambda()#1}>(ejecutar<BufferA>(Config const&, bool)::{lambda()#1}&&) /usr/include/c++/15/bits/invoke.h:98 (version_a_tsan+0x11b7c) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #4 void std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&, bool)::{lambda()#1}> >::_M_invoke<0ul>(std::_Index_tuple<0ul>) /usr/include/c++/15/bits/std_thread.h:303 (version_a_tsan+0x11a50) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #5 std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&, bool)::{lambda()#1}> >::operator()() /usr/include/c++/15/bits/std_thread.h:310 (version_a_tsan+0x11994) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #6 std::thread::_State_impl<std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&, bool)::{lambda()#1}> > >::_M_run() /usr/include/c++/15/bits/std_thread.h:255 (version_a_tsan+0x118f8) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #7 <null> <null> (libstdc++.so.6+0xf5ef8) (BuildId: 3a7a8c6bd922e6314edb7a710fdc0293265c2c42)
+
+  Previous write of size 4 at 0x7fffffffe850 by thread T2:
+    #0 BufferA::producir(Item const&, Traza&) /home/felipe/TIIT2007-sistemas-operativos/proyecto2-concurrencia/version_a/BufferA.h:81 (version_a_tsan+0x5e85) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #1 ejecutar<BufferA>(Config const&, bool)::{lambda()#1}::operator()() const ../common/Ejecutor.h:132 (version_a_tsan+0x6b18) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #2 void std::__invoke_impl<void, ejecutar<BufferA>(Config const&, bool)::{lambda()#1}>(std::__invoke_other, ejecutar<BufferA>(Config const&, bool)::{lambda()#1}&&) /usr/include/c++/15/bits/invoke.h:63 (version_a_tsan+0x11c9e) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #3 std::__invoke_result<ejecutar<BufferA>(Config const&, bool)::{lambda()#1}>::type std::__invoke<ejecutar<BufferA>(Config const&, bool)::{lambda()#1}>(ejecutar<BufferA>(Config const&, bool)::{lambda()#1}&&) /usr/include/c++/15/bits/invoke.h:98 (version_a_tsan+0x11b7c) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #4 void std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&, bool)::{lambda()#1}> >::_M_invoke<0ul>(std::_Index_tuple<0ul>) /usr/include/c++/15/bits/std_thread.h:303 (version_a_tsan+0x11a50) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #5 std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&, bool)::{lambda()#1}> >::operator()() /usr/include/c++/15/bits/std_thread.h:310 (version_a_tsan+0x11994) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #6 std::thread::_State_impl<std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&, bool)::{lambda()#1}> > >::_M_run() /usr/include/c++/15/bits/std_thread.h:255 (version_a_tsan+0x118f8) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #7 <null> <null> (libstdc++.so.6+0xf5ef8) (BuildId: 3a7a8c6bd922e6314edb7a710fdc0293265c2c42)
+
+  Location is stack of main thread.
+
+  Thread T1 (tid=16723, running) created by main thread at:
+    #0 pthread_create ../../../../src/libsanitizer/tsan/tsan_interceptors_posix.cpp:1078 (libtsan.so.2+0x5cb02) (BuildId: 66d37dc704b813df6c813b77217284deb43a0042)
+    #1 std::thread::_M_start_thread(std::unique_ptr<std::thread::_State, std::default_delete<std::thread::_State> >, void (*)()) <null> (libstdc++.so.6+0xf5ff0) (BuildId: 3a7a8c6bd922e6314edb7a710fdc0293265c2c42)
+    #2 void std::__new_allocator<std::thread>::construct<std::thread, ejecutar<BufferA>(Config const&, bool)::{lambda()#1}>(std::thread*, ejecutar<BufferA>(Config const&, bool)::{lambda()#1}&&) /usr/include/c++/15/bits/new_allocator.h:191 (version_a_tsan+0x966e) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #3 void std::allocator_traits<std::allocator<std::thread> >::construct<std::thread, ejecutar<BufferA>(Config const&, bool)::{lambda()#1}>(std::allocator<std::thread>&, std::thread*, ejecutar<BufferA>(Config const&, bool)::{lambda()#1}&&) /usr/include/c++/15/bits/alloc_traits.h:674 (version_a_tsan+0x966e)
+    #4 std::thread& std::vector<std::thread, std::allocator<std::thread> >::emplace_back<ejecutar<BufferA>(Config const&, bool)::{lambda()#1}>(ejecutar<BufferA>(Config const&, bool)::{lambda()#1}&&) /usr/include/c++/15/bits/vector.tcc:117 (version_a_tsan+0x966e)
+    #5 Metricas ejecutar<BufferA>(Config const&, bool) ../common/Ejecutor.h:127 (version_a_tsan+0x7652) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #6 main /home/felipe/TIIT2007-sistemas-operativos/proyecto2-concurrencia/version_a/main.cpp:20 (version_a_tsan+0x392f) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+
+  Thread T2 (tid=16724, running) created by main thread at:
+    #0 pthread_create ../../../../src/libsanitizer/tsan/tsan_interceptors_posix.cpp:1078 (libtsan.so.2+0x5cb02) (BuildId: 66d37dc704b813df6c813b77217284deb43a0042)
+    #1 std::thread::_M_start_thread(std::unique_ptr<std::thread::_State, std::default_delete<std::thread::_State> >, void (*)()) <null> (libstdc++.so.6+0xf5ff0) (BuildId: 3a7a8c6bd922e6314edb7a710fdc0293265c2c42)
+    #2 void std::__new_allocator<std::thread>::construct<std::thread, ejecutar<BufferA>(Config const&, bool)::{lambda()#1}>(std::thread*, ejecutar<BufferA>(Config const&, bool)::{lambda()#1}&&) /usr/include/c++/15/bits/new_allocator.h:191 (version_a_tsan+0x966e) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #3 void std::allocator_traits<std::allocator<std::thread> >::construct<std::thread, ejecutar<BufferA>(Config const&, bool)::{lambda()#1}>(std::allocator<std::thread>&, std::thread*, ejecutar<BufferA>(Config const&, bool)::{lambda()#1}&&) /usr/include/c++/15/bits/alloc_traits.h:674 (version_a_tsan+0x966e)
+    #4 std::thread& std::vector<std::thread, std::allocator<std::thread> >::emplace_back<ejecutar<BufferA>(Config const&, bool)::{lambda()#1}>(ejecutar<BufferA>(Config const&, bool)::{lambda()#1}&&) /usr/include/c++/15/bits/vector.tcc:117 (version_a_tsan+0x966e)
+    #5 Metricas ejecutar<BufferA>(Config const&, bool) ../common/Ejecutor.h:127 (version_a_tsan+0x7652) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #6 main /home/felipe/TIIT2007-sistemas-operativos/proyecto2-concurrencia/version_a/main.cpp:20 (version_a_tsan+0x392f) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+
+SUMMARY: ThreadSanitizer: data race /home/felipe/TIIT2007-sistemas-operativos/proyecto2-concurrencia/version_a/BufferA.h:81 in BufferA::producir(Item const&, Traza&)
+==================
+==================
+WARNING: ThreadSanitizer: data race (pid=16721)
+  Write of size 4 at 0x7fffffffe854 by thread T4:
+    #0 BufferA::consumir(Item&, Traza&) /home/felipe/TIIT2007-sistemas-operativos/proyecto2-concurrencia/version_a/BufferA.h:112 (version_a_tsan+0x605c) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #1 ejecutar<BufferA>(Config const&, bool)::{lambda()#2}::operator()() const ../common/Ejecutor.h:155 (version_a_tsan+0x6f48) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #2 void std::__invoke_impl<void, ejecutar<BufferA>(Config const&, bool)::{lambda()#2}>(std::__invoke_other, ejecutar<BufferA>(Config const&, bool)::{lambda()#2}&&) /usr/include/c++/15/bits/invoke.h:63 (version_a_tsan+0x11c0d) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #3 std::__invoke_result<ejecutar<BufferA>(Config const&, bool)::{lambda()#2}>::type std::__invoke<ejecutar<BufferA>(Config const&, bool)::{lambda()#2}>(ejecutar<BufferA>(Config const&, bool)::{lambda()#2}&&) /usr/include/c++/15/bits/invoke.h:98 (version_a_tsan+0x11ae6) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #4 void std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&, bool)::{lambda()#2}> >::_M_invoke<0ul>(std::_Index_tuple<0ul>) /usr/include/c++/15/bits/std_thread.h:303 (version_a_tsan+0x119f2) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #5 std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&, bool)::{lambda()#2}> >::operator()() /usr/include/c++/15/bits/std_thread.h:310 (version_a_tsan+0x11946) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #6 std::thread::_State_impl<std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&, bool)::{lambda()#2}> > >::_M_run() /usr/include/c++/15/bits/std_thread.h:255 (version_a_tsan+0x118a6) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #7 <null> <null> (libstdc++.so.6+0xf5ef8) (BuildId: 3a7a8c6bd922e6314edb7a710fdc0293265c2c42)
+
+  Previous write of size 4 at 0x7fffffffe854 by thread T3:
+    #0 BufferA::consumir(Item&, Traza&) /home/felipe/TIIT2007-sistemas-operativos/proyecto2-concurrencia/version_a/BufferA.h:112 (version_a_tsan+0x605c) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #1 ejecutar<BufferA>(Config const&, bool)::{lambda()#2}::operator()() const ../common/Ejecutor.h:155 (version_a_tsan+0x6f48) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #2 void std::__invoke_impl<void, ejecutar<BufferA>(Config const&, bool)::{lambda()#2}>(std::__invoke_other, ejecutar<BufferA>(Config const&, bool)::{lambda()#2}&&) /usr/include/c++/15/bits/invoke.h:63 (version_a_tsan+0x11c0d) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #3 std::__invoke_result<ejecutar<BufferA>(Config const&, bool)::{lambda()#2}>::type std::__invoke<ejecutar<BufferA>(Config const&, bool)::{lambda()#2}>(ejecutar<BufferA>(Config const&, bool)::{lambda()#2}&&) /usr/include/c++/15/bits/invoke.h:98 (version_a_tsan+0x11ae6) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #4 void std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&, bool)::{lambda()#2}> >::_M_invoke<0ul>(std::_Index_tuple<0ul>) /usr/include/c++/15/bits/std_thread.h:303 (version_a_tsan+0x119f2) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #5 std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&, bool)::{lambda()#2}> >::operator()() /usr/include/c++/15/bits/std_thread.h:310 (version_a_tsan+0x11946) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #6 std::thread::_State_impl<std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&, bool)::{lambda()#2}> > >::_M_run() /usr/include/c++/15/bits/std_thread.h:255 (version_a_tsan+0x118a6) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #7 <null> <null> (libstdc++.so.6+0xf5ef8) (BuildId: 3a7a8c6bd922e6314edb7a710fdc0293265c2c42)
+
+  Location is stack of main thread.
+
+  Thread T4 (tid=16726, running) created by main thread at:
+    #0 pthread_create ../../../../src/libsanitizer/tsan/tsan_interceptors_posix.cpp:1078 (libtsan.so.2+0x5cb02) (BuildId: 66d37dc704b813df6c813b77217284deb43a0042)
+    #1 std::thread::_M_start_thread(std::unique_ptr<std::thread::_State, std::default_delete<std::thread::_State> >, void (*)()) <null> (libstdc++.so.6+0xf5ff0) (BuildId: 3a7a8c6bd922e6314edb7a710fdc0293265c2c42)
+    #2 void std::__new_allocator<std::thread>::construct<std::thread, ejecutar<BufferA>(Config const&, bool)::{lambda()#2}>(std::thread*, ejecutar<BufferA>(Config const&, bool)::{lambda()#2}&&) /usr/include/c++/15/bits/new_allocator.h:191 (version_a_tsan+0x99ac) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #3 void std::allocator_traits<std::allocator<std::thread> >::construct<std::thread, ejecutar<BufferA>(Config const&, bool)::{lambda()#2}>(std::allocator<std::thread>&, std::thread*, ejecutar<BufferA>(Config const&, bool)::{lambda()#2}&&) /usr/include/c++/15/bits/alloc_traits.h:674 (version_a_tsan+0x99ac)
+    #4 std::thread& std::vector<std::thread, std::allocator<std::thread> >::emplace_back<ejecutar<BufferA>(Config const&, bool)::{lambda()#2}>(ejecutar<BufferA>(Config const&, bool)::{lambda()#2}&&) /usr/include/c++/15/bits/vector.tcc:117 (version_a_tsan+0x99ac)
+    #5 Metricas ejecutar<BufferA>(Config const&, bool) ../common/Ejecutor.h:150 (version_a_tsan+0x7727) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #6 main /home/felipe/TIIT2007-sistemas-operativos/proyecto2-concurrencia/version_a/main.cpp:20 (version_a_tsan+0x392f) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+
+  Thread T3 (tid=16725, running) created by main thread at:
+    #0 pthread_create ../../../../src/libsanitizer/tsan/tsan_interceptors_posix.cpp:1078 (libtsan.so.2+0x5cb02) (BuildId: 66d37dc704b813df6c813b77217284deb43a0042)
+    #1 std::thread::_M_start_thread(std::unique_ptr<std::thread::_State, std::default_delete<std::thread::_State> >, void (*)()) <null> (libstdc++.so.6+0xf5ff0) (BuildId: 3a7a8c6bd922e6314edb7a710fdc0293265c2c42)
+    #2 void std::__new_allocator<std::thread>::construct<std::thread, ejecutar<BufferA>(Config const&, bool)::{lambda()#2}>(std::thread*, ejecutar<BufferA>(Config const&, bool)::{lambda()#2}&&) /usr/include/c++/15/bits/new_allocator.h:191 (version_a_tsan+0x99ac) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #3 void std::allocator_traits<std::allocator<std::thread> >::construct<std::thread, ejecutar<BufferA>(Config const&, bool)::{lambda()#2}>(std::allocator<std::thread>&, std::thread*, ejecutar<BufferA>(Config const&, bool)::{lambda()#2}&&) /usr/include/c++/15/bits/alloc_traits.h:674 (version_a_tsan+0x99ac)
+    #4 std::thread& std::vector<std::thread, std::allocator<std::thread> >::emplace_back<ejecutar<BufferA>(Config const&, bool)::{lambda()#2}>(ejecutar<BufferA>(Config const&, bool)::{lambda()#2}&&) /usr/include/c++/15/bits/vector.tcc:117 (version_a_tsan+0x99ac)
+    #5 Metricas ejecutar<BufferA>(Config const&, bool) ../common/Ejecutor.h:150 (version_a_tsan+0x7727) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #6 main /home/felipe/TIIT2007-sistemas-operativos/proyecto2-concurrencia/version_a/main.cpp:20 (version_a_tsan+0x392f) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+
+SUMMARY: ThreadSanitizer: data race /home/felipe/TIIT2007-sistemas-operativos/proyecto2-concurrencia/version_a/BufferA.h:112 in BufferA::consumir(Item&, Traza&)
+==================
+==================
+WARNING: ThreadSanitizer: data race (pid=16721)
+  Write of size 4 at 0x7fffffffe858 by thread T1:
+    #0 BufferA::producir(Item const&, Traza&) /home/felipe/TIIT2007-sistemas-operativos/proyecto2-concurrencia/version_a/BufferA.h:87 (version_a_tsan+0x5eb6) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #1 ejecutar<BufferA>(Config const&, bool)::{lambda()#1}::operator()() const ../common/Ejecutor.h:132 (version_a_tsan+0x6b18) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #2 void std::__invoke_impl<void, ejecutar<BufferA>(Config const&, bool)::{lambda()#1}>(std::__invoke_other, ejecutar<BufferA>(Config const&, bool)::{lambda()#1}&&) /usr/include/c++/15/bits/invoke.h:63 (version_a_tsan+0x11c9e) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #3 std::__invoke_result<ejecutar<BufferA>(Config const&, bool)::{lambda()#1}>::type std::__invoke<ejecutar<BufferA>(Config const&, bool)::{lambda()#1}>(ejecutar<BufferA>(Config const&, bool)::{lambda()#1}&&) /usr/include/c++/15/bits/invoke.h:98 (version_a_tsan+0x11b7c) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #4 void std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&, bool)::{lambda()#1}> >::_M_invoke<0ul>(std::_Index_tuple<0ul>) /usr/include/c++/15/bits/std_thread.h:303 (version_a_tsan+0x11a50) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #5 std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&, bool)::{lambda()#1}> >::operator()() /usr/include/c++/15/bits/std_thread.h:310 (version_a_tsan+0x11994) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #6 std::thread::_State_impl<std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&, bool)::{lambda()#1}> > >::_M_run() /usr/include/c++/15/bits/std_thread.h:255 (version_a_tsan+0x118f8) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #7 <null> <null> (libstdc++.so.6+0xf5ef8) (BuildId: 3a7a8c6bd922e6314edb7a710fdc0293265c2c42)
+
+  Previous write of size 4 at 0x7fffffffe858 by thread T2:
+    #0 BufferA::producir(Item const&, Traza&) /home/felipe/TIIT2007-sistemas-operativos/proyecto2-concurrencia/version_a/BufferA.h:87 (version_a_tsan+0x5eb6) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #1 ejecutar<BufferA>(Config const&, bool)::{lambda()#1}::operator()() const ../common/Ejecutor.h:132 (version_a_tsan+0x6b18) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #2 void std::__invoke_impl<void, ejecutar<BufferA>(Config const&, bool)::{lambda()#1}>(std::__invoke_other, ejecutar<BufferA>(Config const&, bool)::{lambda()#1}&&) /usr/include/c++/15/bits/invoke.h:63 (version_a_tsan+0x11c9e) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #3 std::__invoke_result<ejecutar<BufferA>(Config const&, bool)::{lambda()#1}>::type std::__invoke<ejecutar<BufferA>(Config const&, bool)::{lambda()#1}>(ejecutar<BufferA>(Config const&, bool)::{lambda()#1}&&) /usr/include/c++/15/bits/invoke.h:98 (version_a_tsan+0x11b7c) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #4 void std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&, bool)::{lambda()#1}> >::_M_invoke<0ul>(std::_Index_tuple<0ul>) /usr/include/c++/15/bits/std_thread.h:303 (version_a_tsan+0x11a50) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #5 std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&, bool)::{lambda()#1}> >::operator()() /usr/include/c++/15/bits/std_thread.h:310 (version_a_tsan+0x11994) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #6 std::thread::_State_impl<std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&, bool)::{lambda()#1}> > >::_M_run() /usr/include/c++/15/bits/std_thread.h:255 (version_a_tsan+0x118f8) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #7 <null> <null> (libstdc++.so.6+0xf5ef8) (BuildId: 3a7a8c6bd922e6314edb7a710fdc0293265c2c42)
+
+  Location is stack of main thread.
+
+  Thread T1 (tid=16723, running) created by main thread at:
+    #0 pthread_create ../../../../src/libsanitizer/tsan/tsan_interceptors_posix.cpp:1078 (libtsan.so.2+0x5cb02) (BuildId: 66d37dc704b813df6c813b77217284deb43a0042)
+    #1 std::thread::_M_start_thread(std::unique_ptr<std::thread::_State, std::default_delete<std::thread::_State> >, void (*)()) <null> (libstdc++.so.6+0xf5ff0) (BuildId: 3a7a8c6bd922e6314edb7a710fdc0293265c2c42)
+    #2 void std::__new_allocator<std::thread>::construct<std::thread, ejecutar<BufferA>(Config const&, bool)::{lambda()#1}>(std::thread*, ejecutar<BufferA>(Config const&, bool)::{lambda()#1}&&) /usr/include/c++/15/bits/new_allocator.h:191 (version_a_tsan+0x966e) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #3 void std::allocator_traits<std::allocator<std::thread> >::construct<std::thread, ejecutar<BufferA>(Config const&, bool)::{lambda()#1}>(std::allocator<std::thread>&, std::thread*, ejecutar<BufferA>(Config const&, bool)::{lambda()#1}&&) /usr/include/c++/15/bits/alloc_traits.h:674 (version_a_tsan+0x966e)
+    #4 std::thread& std::vector<std::thread, std::allocator<std::thread> >::emplace_back<ejecutar<BufferA>(Config const&, bool)::{lambda()#1}>(ejecutar<BufferA>(Config const&, bool)::{lambda()#1}&&) /usr/include/c++/15/bits/vector.tcc:117 (version_a_tsan+0x966e)
+    #5 Metricas ejecutar<BufferA>(Config const&, bool) ../common/Ejecutor.h:127 (version_a_tsan+0x7652) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #6 main /home/felipe/TIIT2007-sistemas-operativos/proyecto2-concurrencia/version_a/main.cpp:20 (version_a_tsan+0x392f) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+
+  Thread T2 (tid=16724, running) created by main thread at:
+    #0 pthread_create ../../../../src/libsanitizer/tsan/tsan_interceptors_posix.cpp:1078 (libtsan.so.2+0x5cb02) (BuildId: 66d37dc704b813df6c813b77217284deb43a0042)
+    #1 std::thread::_M_start_thread(std::unique_ptr<std::thread::_State, std::default_delete<std::thread::_State> >, void (*)()) <null> (libstdc++.so.6+0xf5ff0) (BuildId: 3a7a8c6bd922e6314edb7a710fdc0293265c2c42)
+    #2 void std::__new_allocator<std::thread>::construct<std::thread, ejecutar<BufferA>(Config const&, bool)::{lambda()#1}>(std::thread*, ejecutar<BufferA>(Config const&, bool)::{lambda()#1}&&) /usr/include/c++/15/bits/new_allocator.h:191 (version_a_tsan+0x966e) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #3 void std::allocator_traits<std::allocator<std::thread> >::construct<std::thread, ejecutar<BufferA>(Config const&, bool)::{lambda()#1}>(std::allocator<std::thread>&, std::thread*, ejecutar<BufferA>(Config const&, bool)::{lambda()#1}&&) /usr/include/c++/15/bits/alloc_traits.h:674 (version_a_tsan+0x966e)
+    #4 std::thread& std::vector<std::thread, std::allocator<std::thread> >::emplace_back<ejecutar<BufferA>(Config const&, bool)::{lambda()#1}>(ejecutar<BufferA>(Config const&, bool)::{lambda()#1}&&) /usr/include/c++/15/bits/vector.tcc:117 (version_a_tsan+0x966e)
+    #5 Metricas ejecutar<BufferA>(Config const&, bool) ../common/Ejecutor.h:127 (version_a_tsan+0x7652) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #6 main /home/felipe/TIIT2007-sistemas-operativos/proyecto2-concurrencia/version_a/main.cpp:20 (version_a_tsan+0x392f) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+
+SUMMARY: ThreadSanitizer: data race /home/felipe/TIIT2007-sistemas-operativos/proyecto2-concurrencia/version_a/BufferA.h:87 in BufferA::producir(Item const&, Traza&)
+==================
+==================
+WARNING: ThreadSanitizer: data race (pid=16721)
+  Write of size 4 at 0x7fffffffe858 by thread T3:
+    #0 BufferA::consumir(Item&, Traza&) /home/felipe/TIIT2007-sistemas-operativos/proyecto2-concurrencia/version_a/BufferA.h:113 (version_a_tsan+0x608d) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #1 ejecutar<BufferA>(Config const&, bool)::{lambda()#2}::operator()() const ../common/Ejecutor.h:155 (version_a_tsan+0x6f48) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #2 void std::__invoke_impl<void, ejecutar<BufferA>(Config const&, bool)::{lambda()#2}>(std::__invoke_other, ejecutar<BufferA>(Config const&, bool)::{lambda()#2}&&) /usr/include/c++/15/bits/invoke.h:63 (version_a_tsan+0x11c0d) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #3 std::__invoke_result<ejecutar<BufferA>(Config const&, bool)::{lambda()#2}>::type std::__invoke<ejecutar<BufferA>(Config const&, bool)::{lambda()#2}>(ejecutar<BufferA>(Config const&, bool)::{lambda()#2}&&) /usr/include/c++/15/bits/invoke.h:98 (version_a_tsan+0x11ae6) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #4 void std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&, bool)::{lambda()#2}> >::_M_invoke<0ul>(std::_Index_tuple<0ul>) /usr/include/c++/15/bits/std_thread.h:303 (version_a_tsan+0x119f2) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #5 std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&, bool)::{lambda()#2}> >::operator()() /usr/include/c++/15/bits/std_thread.h:310 (version_a_tsan+0x11946) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #6 std::thread::_State_impl<std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&, bool)::{lambda()#2}> > >::_M_run() /usr/include/c++/15/bits/std_thread.h:255 (version_a_tsan+0x118a6) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #7 <null> <null> (libstdc++.so.6+0xf5ef8) (BuildId: 3a7a8c6bd922e6314edb7a710fdc0293265c2c42)
+
+  Previous write of size 4 at 0x7fffffffe858 by thread T4:
+    #0 BufferA::consumir(Item&, Traza&) /home/felipe/TIIT2007-sistemas-operativos/proyecto2-concurrencia/version_a/BufferA.h:113 (version_a_tsan+0x608d) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #1 ejecutar<BufferA>(Config const&, bool)::{lambda()#2}::operator()() const ../common/Ejecutor.h:155 (version_a_tsan+0x6f48) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #2 void std::__invoke_impl<void, ejecutar<BufferA>(Config const&, bool)::{lambda()#2}>(std::__invoke_other, ejecutar<BufferA>(Config const&, bool)::{lambda()#2}&&) /usr/include/c++/15/bits/invoke.h:63 (version_a_tsan+0x11c0d) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #3 std::__invoke_result<ejecutar<BufferA>(Config const&, bool)::{lambda()#2}>::type std::__invoke<ejecutar<BufferA>(Config const&, bool)::{lambda()#2}>(ejecutar<BufferA>(Config const&, bool)::{lambda()#2}&&) /usr/include/c++/15/bits/invoke.h:98 (version_a_tsan+0x11ae6) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #4 void std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&, bool)::{lambda()#2}> >::_M_invoke<0ul>(std::_Index_tuple<0ul>) /usr/include/c++/15/bits/std_thread.h:303 (version_a_tsan+0x119f2) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #5 std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&, bool)::{lambda()#2}> >::operator()() /usr/include/c++/15/bits/std_thread.h:310 (version_a_tsan+0x11946) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #6 std::thread::_State_impl<std::thread::_Invoker<std::tuple<ejecutar<BufferA>(Config const&, bool)::{lambda()#2}> > >::_M_run() /usr/include/c++/15/bits/std_thread.h:255 (version_a_tsan+0x118a6) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #7 <null> <null> (libstdc++.so.6+0xf5ef8) (BuildId: 3a7a8c6bd922e6314edb7a710fdc0293265c2c42)
+
+  Location is stack of main thread.
+
+  Thread T3 (tid=16725, running) created by main thread at:
+    #0 pthread_create ../../../../src/libsanitizer/tsan/tsan_interceptors_posix.cpp:1078 (libtsan.so.2+0x5cb02) (BuildId: 66d37dc704b813df6c813b77217284deb43a0042)
+    #1 std::thread::_M_start_thread(std::unique_ptr<std::thread::_State, std::default_delete<std::thread::_State> >, void (*)()) <null> (libstdc++.so.6+0xf5ff0) (BuildId: 3a7a8c6bd922e6314edb7a710fdc0293265c2c42)
+    #2 void std::__new_allocator<std::thread>::construct<std::thread, ejecutar<BufferA>(Config const&, bool)::{lambda()#2}>(std::thread*, ejecutar<BufferA>(Config const&, bool)::{lambda()#2}&&) /usr/include/c++/15/bits/new_allocator.h:191 (version_a_tsan+0x99ac) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #3 void std::allocator_traits<std::allocator<std::thread> >::construct<std::thread, ejecutar<BufferA>(Config const&, bool)::{lambda()#2}>(std::allocator<std::thread>&, std::thread*, ejecutar<BufferA>(Config const&, bool)::{lambda()#2}&&) /usr/include/c++/15/bits/alloc_traits.h:674 (version_a_tsan+0x99ac)
+    #4 std::thread& std::vector<std::thread, std::allocator<std::thread> >::emplace_back<ejecutar<BufferA>(Config const&, bool)::{lambda()#2}>(ejecutar<BufferA>(Config const&, bool)::{lambda()#2}&&) /usr/include/c++/15/bits/vector.tcc:117 (version_a_tsan+0x99ac)
+    #5 Metricas ejecutar<BufferA>(Config const&, bool) ../common/Ejecutor.h:150 (version_a_tsan+0x7727) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #6 main /home/felipe/TIIT2007-sistemas-operativos/proyecto2-concurrencia/version_a/main.cpp:20 (version_a_tsan+0x392f) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+
+  Thread T4 (tid=16726, running) created by main thread at:
+    #0 pthread_create ../../../../src/libsanitizer/tsan/tsan_interceptors_posix.cpp:1078 (libtsan.so.2+0x5cb02) (BuildId: 66d37dc704b813df6c813b77217284deb43a0042)
+    #1 std::thread::_M_start_thread(std::unique_ptr<std::thread::_State, std::default_delete<std::thread::_State> >, void (*)()) <null> (libstdc++.so.6+0xf5ff0) (BuildId: 3a7a8c6bd922e6314edb7a710fdc0293265c2c42)
+    #2 void std::__new_allocator<std::thread>::construct<std::thread, ejecutar<BufferA>(Config const&, bool)::{lambda()#2}>(std::thread*, ejecutar<BufferA>(Config const&, bool)::{lambda()#2}&&) /usr/include/c++/15/bits/new_allocator.h:191 (version_a_tsan+0x99ac) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #3 void std::allocator_traits<std::allocator<std::thread> >::construct<std::thread, ejecutar<BufferA>(Config const&, bool)::{lambda()#2}>(std::allocator<std::thread>&, std::thread*, ejecutar<BufferA>(Config const&, bool)::{lambda()#2}&&) /usr/include/c++/15/bits/alloc_traits.h:674 (version_a_tsan+0x99ac)
+    #4 std::thread& std::vector<std::thread, std::allocator<std::thread> >::emplace_back<ejecutar<BufferA>(Config const&, bool)::{lambda()#2}>(ejecutar<BufferA>(Config const&, bool)::{lambda()#2}&&) /usr/include/c++/15/bits/vector.tcc:117 (version_a_tsan+0x99ac)
+    #5 Metricas ejecutar<BufferA>(Config const&, bool) ../common/Ejecutor.h:150 (version_a_tsan+0x7727) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+    #6 main /home/felipe/TIIT2007-sistemas-operativos/proyecto2-concurrencia/version_a/main.cpp:20 (version_a_tsan+0x392f) (BuildId: 864499822ec19b32e3624725db4c371979980978)
+
+SUMMARY: ThreadSanitizer: data race /home/felipe/TIIT2007-sistemas-operativos/proyecto2-concurrencia/version_a/BufferA.h:113 in BufferA::consumir(Item&, Traza&)
+==================
+  --- verificacion de invariantes (RF-4) ---
+  Producidos                     1000
+  Consumidos                     1313   <-- DIFIERE
+  Suma producida               250500
+  Suma consumida               294909   <-- DIFIERE
+  Perdidos                        236
+  Duplicados                      549
+  Fantasma                          0
+  Corruptos                         0
+  Ocupacion maxima                 11   (N = 10)  <-- EXCEDIO N
+  INVARIANTE: VIOLADO
+  Tiempo total                366.988 ms
+
+ThreadSanitizer: reported 8 warnings
