@@ -1,0 +1,5 @@
+# Cadena que exhibe la ANOMALIA DE BELADY con FIFO.
+# Con 3 marcos produce 9 fallos; con 4 marcos produce 10.
+# Es decir: darle MAS memoria al sistema lo empeora.
+# La lamina 7 de la Unidad IV menciona esta anomalia como desventaja de FIFO.
+1 2 3 4 1 2 5 1 2 3 4 5

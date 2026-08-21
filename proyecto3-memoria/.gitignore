@@ -1,0 +1,4 @@
+# Binarios: se generan con make, no se versionan.
+simulador
+herramientas/generar
+herramientas/reporte

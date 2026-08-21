@@ -1,0 +1,4 @@
+# Cadena de referencias corta - para la traza manual (RF-5)
+# Es la cadena canonica de Silberschatz, la misma que aparece en la lamina 7
+# de la Unidad III del curso. 20 referencias sobre 8 paginas distintas.
+7 0 1 2 0 3 0 4 2 3 0 3 2 1 2 0 1 7 0 1
