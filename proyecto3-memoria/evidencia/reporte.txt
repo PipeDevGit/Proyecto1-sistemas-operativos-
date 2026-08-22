@@ -1,0 +1,227 @@
+
+Fuentes de datos
+  evidencia/resultados.csv: 72 corridas
+
+TABLA 1 - FALLOS DE PAGINA POR ALGORITMO Y TAMANO DE MARCO
+──────────────────────────────────────────────────────────────────────────
+
+  belady  (12 referencias)
+  Marcos          FIFO         LRU      OPTIMO   Mejor         
+────────────────────────────────────────────────────────────
+  3                  9          10           7   OPTIMO        
+  4                 10           8           6   OPTIMO        
+  5                  5           5           5   FIFO          
+
+  corta  (20 referencias)
+  Marcos          FIFO         LRU      OPTIMO   Mejor         
+────────────────────────────────────────────────────────────
+  3                 15          12           9   OPTIMO        
+  4                 10           8           8   LRU           
+  5                  9           7           7   LRU           
+
+  larga_aleatoria  (1200 referencias)
+  Marcos          FIFO         LRU      OPTIMO   Mejor         
+────────────────────────────────────────────────────────────
+  3               1028        1030         777   OPTIMO        
+  4                976         972         672   OPTIMO        
+  5                904         914         587   OPTIMO        
+  8                730         731         394   OPTIMO        
+  12               486         481         217   OPTIMO        
+  16               249         239          98   OPTIMO        
+
+  larga_localidad  (1200 referencias)
+  Marcos          FIFO         LRU      OPTIMO   Mejor         
+────────────────────────────────────────────────────────────
+  3                336         316         195   OPTIMO        
+  4                108          71          59   OPTIMO        
+  5                 63          59          56   OPTIMO        
+  8                 59          59          47   OPTIMO        
+  12                59          59          36   OPTIMO        
+  16                59          59          28   OPTIMO        
+
+  larga_secuencial  (1200 referencias)
+  Marcos          FIFO         LRU      OPTIMO   Mejor         
+────────────────────────────────────────────────────────────
+  3               1200        1200        1074   OPTIMO        
+  4               1200        1200        1012   OPTIMO        
+  5               1200        1200         950   OPTIMO        
+  8               1200        1200         764   OPTIMO        
+  12              1200        1200         516   OPTIMO        
+  16              1200        1200         268   OPTIMO        
+
+GRAFICO - FALLOS FRENTE AL TAMANO DE MARCO
+──────────────────────────────────────────────────────────────────────────
+  Cada barra es proporcional a los fallos de esa combinacion.
+
+  belady
+    3 marcos FIFO    ██████████████████████████████████ 9
+    3 marcos LRU     ██████████████████████████████████████ 10
+    3 marcos OPTIMO  ███████████████████████████ 7
+    4 marcos FIFO    ██████████████████████████████████████ 10
+    4 marcos LRU     ██████████████████████████████ 8
+    4 marcos OPTIMO  ███████████████████████ 6
+    5 marcos FIFO    ███████████████████ 5
+    5 marcos LRU     ███████████████████ 5
+    5 marcos OPTIMO  ███████████████████ 5
+
+  corta
+    3 marcos FIFO    ██████████████████████████████████████ 15
+    3 marcos LRU     ██████████████████████████████ 12
+    3 marcos OPTIMO  ███████████████████████ 9
+    4 marcos FIFO    █████████████████████████ 10
+    4 marcos LRU     ████████████████████ 8
+    4 marcos OPTIMO  ████████████████████ 8
+    5 marcos FIFO    ███████████████████████ 9
+    5 marcos LRU     ██████████████████ 7
+    5 marcos OPTIMO  ██████████████████ 7
+
+  larga_aleatoria
+    3 marcos FIFO    ██████████████████████████████████████ 1028
+    3 marcos LRU     ██████████████████████████████████████ 1030
+    3 marcos OPTIMO  █████████████████████████████ 777
+    4 marcos FIFO    ████████████████████████████████████ 976
+    4 marcos LRU     ████████████████████████████████████ 972
+    4 marcos OPTIMO  █████████████████████████ 672
+    5 marcos FIFO    █████████████████████████████████ 904
+    5 marcos LRU     ██████████████████████████████████ 914
+    5 marcos OPTIMO  ██████████████████████ 587
+    8 marcos FIFO    ███████████████████████████ 730
+    8 marcos LRU     ███████████████████████████ 731
+    8 marcos OPTIMO  ███████████████ 394
+   12 marcos FIFO    ██████████████████ 486
+   12 marcos LRU     ██████████████████ 481
+   12 marcos OPTIMO  ████████ 217
+   16 marcos FIFO    █████████ 249
+   16 marcos LRU     █████████ 239
+   16 marcos OPTIMO  ████ 98
+
+  larga_localidad
+    3 marcos FIFO    ██████████████████████████████████████ 336
+    3 marcos LRU     ████████████████████████████████████ 316
+    3 marcos OPTIMO  ██████████████████████ 195
+    4 marcos FIFO    ████████████ 108
+    4 marcos LRU     ████████ 71
+    4 marcos OPTIMO  ███████ 59
+    5 marcos FIFO    ███████ 63
+    5 marcos LRU     ███████ 59
+    5 marcos OPTIMO  ██████ 56
+    8 marcos FIFO    ███████ 59
+    8 marcos LRU     ███████ 59
+    8 marcos OPTIMO  █████ 47
+   12 marcos FIFO    ███████ 59
+   12 marcos LRU     ███████ 59
+   12 marcos OPTIMO  ████ 36
+   16 marcos FIFO    ███████ 59
+   16 marcos LRU     ███████ 59
+   16 marcos OPTIMO  ███ 28
+
+  larga_secuencial
+    3 marcos FIFO    ██████████████████████████████████████ 1200
+    3 marcos LRU     ██████████████████████████████████████ 1200
+    3 marcos OPTIMO  ██████████████████████████████████ 1074
+    4 marcos FIFO    ██████████████████████████████████████ 1200
+    4 marcos LRU     ██████████████████████████████████████ 1200
+    4 marcos OPTIMO  ████████████████████████████████ 1012
+    5 marcos FIFO    ██████████████████████████████████████ 1200
+    5 marcos LRU     ██████████████████████████████████████ 1200
+    5 marcos OPTIMO  ██████████████████████████████ 950
+    8 marcos FIFO    ██████████████████████████████████████ 1200
+    8 marcos LRU     ██████████████████████████████████████ 1200
+    8 marcos OPTIMO  ████████████████████████ 764
+   12 marcos FIFO    ██████████████████████████████████████ 1200
+   12 marcos LRU     ██████████████████████████████████████ 1200
+   12 marcos OPTIMO  ████████████████ 516
+   16 marcos FIFO    ██████████████████████████████████████ 1200
+   16 marcos LRU     ██████████████████████████████████████ 1200
+   16 marcos OPTIMO  ████████ 268
+
+ANOMALIA DE BELADY
+──────────────────────────────────────────────────────────────────────────
+  Se marca cuando aumentar el numero de marcos AUMENTA los fallos.
+
+  █ ANOMALIA  belady                 FIFO     3 marcos: 9 fallos  ->  4 marcos: 10 fallos
+
+  FIFO puede sufrirla porque no distingue paginas utiles de inutiles.
+  LRU NO puede sufrirla: pertenece a la familia de algoritmos de pila,
+  en los que el conjunto residente con N marcos siempre esta contenido
+  en el de N+1 marcos.
+
+TIEMPO DE SIMULACION
+──────────────────────────────────────────────────────────────────────────
+  Microsegundos por corrida. Mide el costo del algoritmo, no del SO.
+
+  Cadena                 Marcos    Algoritmo     Tiempo(us)
+────────────────────────────────────────────────────────────
+  belady                 3              FIFO            2.6
+  belady                 3               LRU            2.3
+  belady                 3            OPTIMO            1.8
+  belady                 4              FIFO            2.9
+  belady                 4               LRU            2.7
+  belady                 4            OPTIMO            1.5
+  belady                 5              FIFO            3.1
+  belady                 5               LRU            1.7
+  belady                 5            OPTIMO            1.0
+  corta                  3              FIFO            3.3
+  corta                  3               LRU            3.4
+  corta                  3            OPTIMO            3.1
+  corta                  4              FIFO            3.1
+  corta                  4               LRU            2.6
+  corta                  4            OPTIMO            2.5
+  corta                  5              FIFO            3.4
+  corta                  5               LRU            2.6
+  corta                  5            OPTIMO            1.9
+  larga_aleatoria        3              FIFO           92.6
+  larga_aleatoria        3               LRU          163.2
+  larga_aleatoria        3            OPTIMO          145.4
+  larga_aleatoria        4              FIFO           84.8
+  larga_aleatoria        4               LRU          149.5
+  larga_aleatoria        4            OPTIMO          135.1
+  larga_aleatoria        5              FIFO           89.0
+  larga_aleatoria        5               LRU          150.7
+  larga_aleatoria        5            OPTIMO          145.8
+  larga_aleatoria        8              FIFO           79.9
+  larga_aleatoria        8               LRU          363.9
+  larga_aleatoria        8            OPTIMO          123.2
+  larga_aleatoria        12             FIFO           56.4
+  larga_aleatoria        12              LRU           91.1
+  larga_aleatoria        12           OPTIMO           94.1
+  larga_aleatoria        16             FIFO           37.2
+  larga_aleatoria        16              LRU           56.1
+  larga_aleatoria        16           OPTIMO          208.3
+  larga_localidad        3              FIFO           54.5
+  larga_localidad        3               LRU           86.1
+  larga_localidad        3            OPTIMO           65.3
+  larga_localidad        4              FIFO           41.3
+  larga_localidad        4               LRU           55.5
+  larga_localidad        4            OPTIMO           50.1
+  larga_localidad        5              FIFO           40.6
+  larga_localidad        5               LRU           56.0
+  larga_localidad        5            OPTIMO           85.8
+  larga_localidad        8              FIFO           39.6
+  larga_localidad        8               LRU           58.5
+  larga_localidad        8            OPTIMO           51.7
+  larga_localidad        12             FIFO           38.6
+  larga_localidad        12              LRU           53.8
+  larga_localidad        12           OPTIMO           47.8
+  larga_localidad        16             FIFO           36.3
+  larga_localidad        16              LRU           52.1
+  larga_localidad        16           OPTIMO           44.8
+  larga_secuencial       3              FIFO           75.1
+  larga_secuencial       3               LRU          752.4
+  larga_secuencial       3            OPTIMO          118.5
+  larga_secuencial       4              FIFO           70.0
+  larga_secuencial       4               LRU          132.3
+  larga_secuencial       4            OPTIMO          173.2
+  larga_secuencial       5              FIFO           66.7
+  larga_secuencial       5               LRU          123.4
+  larga_secuencial       5            OPTIMO          130.5
+  larga_secuencial       8              FIFO           59.0
+  larga_secuencial       8               LRU          126.2
+  larga_secuencial       8            OPTIMO          157.9
+  larga_secuencial       12             FIFO          107.3
+  larga_secuencial       12              LRU          135.7
+  larga_secuencial       12           OPTIMO          481.0
+  larga_secuencial       16             FIFO           59.4
+  larga_secuencial       16              LRU          104.0
+  larga_secuencial       16           OPTIMO           92.0
+
