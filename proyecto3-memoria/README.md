@@ -150,12 +150,17 @@ proyecto3-memoria/
 
 ## Entorno de prueba
 
-| | Valor |
-|---|---|
-| Sistema | Ubuntu 26.04 LTS sobre VirtualBox |
-| Compilador | g++ 15.2.0 |
-| Núcleos lógicos | 6 |
-| Banderas | `-std=c++17 -Wall -Wextra -O2` |
+| | Entorno 1 | Entorno 2 |
+|---|---|---|
+| Sistema | Ubuntu 26.04 LTS (VirtualBox) | Windows 11 Pro |
+| Compilador | g++ 15.2.0 | g++ 16.2.0 (MinGW-w64 UCRT) |
+| Núcleos lógicos | 6 | 16 |
+| Banderas | `-std=c++17 -Wall -Wextra -O2` | idénticas |
+
+El protocolo completo se ejecutó en ambos entornos y las **72 combinaciones
+produjeron fallos y aciertos idénticos**, sin una sola discrepancia. Como el
+simulador es determinista y de un solo hilo, esa coincidencia exacta es la
+verificación de compatibilidad más exigente posible.
 
 **Nota sobre los tiempos.** La simulación es de un solo hilo y sin
 entrada/salida, así que los tiempos son estables entre corridas. Aun así se
