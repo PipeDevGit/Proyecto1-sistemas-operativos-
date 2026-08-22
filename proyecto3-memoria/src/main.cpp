@@ -12,6 +12,7 @@
 // ---------------------------------------------------------------------------
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -95,10 +96,22 @@ static void imprimirResumen(const std::vector<Metricas>& res, const Config& cfg)
     const char* NEG   = cfg.color ? "\033[1m"  : "";
     const char* FIN   = cfg.color ? "\033[0m"  : "";
 
-    printf("\n%s+--------------------------------------------------------------+%s\n", GRIS, FIN);
-    printf("%s|%s %sRESULTADOS%s  cadena: %-22s marcos: %-3d %s|%s\n",
-           GRIS, FIN, NEG, FIN, cfg.cadena.c_str(), cfg.marcos, GRIS, FIN);
-    printf("%s+--------------------------------------------------------------+%s\n", GRIS, FIN);
+    // El recuadro se dimensiona segun el contenido real. Con un ancho fijo,
+    // una ruta de cadena larga desborda el borde y la cabecera queda
+    // descuadrada respecto de la tabla de abajo.
+    char cabecera[512];
+    snprintf(cabecera, sizeof(cabecera), " RESULTADOS  cadena: %s   marcos: %d ",
+             cfg.cadena.c_str(), cfg.marcos);
+    int ancho = static_cast<int>(strlen(cabecera));
+    if (ancho < 62) ancho = 62;   // nunca mas angosto que la tabla de resultados
+
+    printf("\n%s+", GRIS);
+    for (int i = 0; i < ancho; i++) printf("-");
+    printf("+%s\n", FIN);
+    printf("%s|%s%s%-*s%s%s|%s\n", GRIS, FIN, NEG, ancho, cabecera, FIN, GRIS, FIN);
+    printf("%s+", GRIS);
+    for (int i = 0; i < ancho; i++) printf("-");
+    printf("+%s\n", FIN);
 
     printf("  %s%-10s %12s %10s %10s %10s %12s%s\n", NEG,
            "Algoritmo", "Referencias", "Aciertos", "Fallos", "% fallos", "Tiempo(us)", FIN);
