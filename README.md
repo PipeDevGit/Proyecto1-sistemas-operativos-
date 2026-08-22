@@ -11,8 +11,11 @@ Repositorio individual de los proyectos del curso TIIT2007 (Sistemas Operativos)
 |---|---|---|
 | Proyecto 1 — Simulador de Scheduling | [`proyecto1-scheduling/`](proyecto1-scheduling/) | Entregado |
 | Proyecto 2 — Simulador de Concurrencia | [`proyecto2-concurrencia/`](proyecto2-concurrencia/) | Entregado |
-| Proyecto 3 — Gestión de Memoria | [`proyecto3-memoria/`](proyecto3-memoria/) | Pendiente |
+| Proyecto 3 — Gestión de Memoria | [`proyecto3-memoria/`](proyecto3-memoria/) | Entregado |
 | Proyecto 4 — Administrador de Recursos | [`proyecto4-administrador-recursos/`](proyecto4-administrador-recursos/) | Pendiente |
+
+Cada proyecto tiene su propio `README.md` con instrucciones de compilación, parámetros aceptados
+y entorno de prueba.
 
 ## Entorno de compilación
 
@@ -20,11 +23,13 @@ Repositorio individual de los proyectos del curso TIIT2007 (Sistemas Operativos)
 - Entorno principal: Ubuntu 26.04 LTS sobre VirtualBox (VM institucional del curso), `g++ 15.2.0`.
 - Entorno secundario: Windows 11, `g++ 16.2.0` (MinGW-w64 UCRT vía MSYS2).
 
-El Proyecto 2 **se compiló y ejecutó en ambos entornos**, sin modificaciones y sin advertencias
-bajo `-Wall -Wextra`; los resultados de esa verificación están en
-`proyecto2-concurrencia/results/windows*.csv`. El Proyecto 1 se desarrolló y probó únicamente en
-Linux, y su compatibilidad con Windows se argumenta por ausencia de dependencias de plataforma,
-no por verificación directa.
+| Proyecto | Verificación multiplataforma |
+|---|---|
+| Proyecto 1 | Solo Linux. La compatibilidad con Windows se argumenta por ausencia de dependencias de plataforma, **no** por verificación directa. |
+| Proyecto 2 | Compilado y ejecutado en ambos entornos. Evidencia en `proyecto2-concurrencia/evidencia/resultados_windows.csv`. |
+| Proyecto 3 | Compilado y ejecutado en ambos entornos. Las **72 combinaciones produjeron resultados idénticos**; evidencia en `proyecto3-memoria/evidencia/resultados_windows.csv`. |
+
+Ninguno de los proyectos produce advertencias bajo `-Wall -Wextra`.
 
 ## Declaración de uso de Inteligencia Artificial
 
@@ -38,13 +43,19 @@ del código (estructura de datos, lectura de archivos, algoritmos FCFS/Round Rob
 generación de Gantt ASCII) y del primer borrador del documento IEEE.
 
 **Proyecto 2.** El alcance de la asistencia fue mayor y se declara de forma explícita: se redactaron
-con apoyo de la herramienta las cuatro variantes del buffer compartido, el esquema de
-instrumentación y reconciliación, el generador de reportes, la demostración de interbloqueo y el
-documento IEEE. El estudiante definió el alcance, revisó cada decisión de diseño con su
-justificación, ejecutó y validó los experimentos, y detectó junto a la herramienta varias
-afirmaciones que los datos no sostenían, las cuales fueron corregidas antes de la entrega.
+con apoyo de la herramienta las versiones del buffer compartido, el esquema de instrumentación y
+reconciliación, el generador de reportes, la demostración de interbloqueo y el documento IEEE. El
+estudiante definió el alcance, revisó cada decisión de diseño con su justificación, ejecutó y validó
+los experimentos, y detectó junto a la herramienta varias afirmaciones que los datos no sostenían,
+las cuales fueron corregidas antes de la entrega.
 
-En ambos casos, todo el contenido fue revisado y comprendido por el estudiante, y puede ser
+**Proyecto 3.** Alcance equivalente al del Proyecto 2: se redactaron con apoyo de la herramienta las
+implementaciones de FIFO, LRU y el algoritmo óptimo, el generador de cadenas sintéticas, el
+generador de reportes y el documento IEEE. Se incorporó además una verificación externa —el
+simulador reproduce los valores publicados en la literatura para la cadena canónica— de modo que la
+corrección no depende del criterio del propio autor.
+
+En los tres casos, todo el contenido fue revisado y comprendido por el estudiante, y puede ser
 explicado y defendido en la Defensa Técnica Individual.
 
 ## Estructura del repositorio
@@ -53,18 +64,30 @@ explicado y defendido en la Defensa Técnica Individual.
 TIIT2007-sistemas-operativos/
 ├── README.md
 ├── proyecto1-scheduling/
-│   ├── src/
-│   ├── data/
-│   ├── results/
-│   ├── docs/
+│   ├── src/            FCFS, Round Robin, metricas y Gantt
+│   ├── data/           cargas de procesos sinteticas
+│   ├── results/        salidas de las corridas
+│   ├── docs/           documento IEEE
 │   └── README.md
 ├── proyecto2-concurrencia/
-│   ├── src/            cuatro variantes de sincronizacion + instrumentacion
-│   ├── results/        CSV crudos y registros de ThreadSanitizer
-│   ├── docs/           documento IEEE y documento de diseño
+│   ├── common/         codigo compartido por ambas versiones
+│   ├── version_a/      buffer SIN sincronizacion
+│   ├── version_b/      buffer CON sincronizacion
+│   ├── extras/         mecanismos adicionales y demo de interbloqueo
+│   ├── herramientas/   generador de reportes
+│   ├── evidencia/      CSV, logs y salidas de las corridas
+│   ├── docs/           documento IEEE
 │   ├── Makefile
 │   └── README.md
 ├── proyecto3-memoria/
+│   ├── common/         lectura de cadenas y motor de simulacion
+│   ├── src/            FIFO, LRU y algoritmo optimo
+│   ├── herramientas/   generador de cadenas y de reportes
+│   ├── data/           cadenas de referencia
+│   ├── evidencia/      CSV, trazas y reportes
+│   ├── docs/           documento IEEE
+│   ├── Makefile
+│   └── README.md
 ├── proyecto4-administrador-recursos/
 ├── invenio-fest/
 └── portafolio/
