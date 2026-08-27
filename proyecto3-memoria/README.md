@@ -38,6 +38,15 @@ biblioteca estándar. Compila sin advertencias.
 
 Ningún parámetro requiere recompilar.
 
+**Validaciones.** `--marcos` debe ser al menos 1 y no puede superar el número
+de referencias de la cadena: más marcos que referencias no puede cambiar el
+resultado, porque cada referencia carga a lo sumo una página. Si a una opción le
+falta su valor, el mensaje lo dice explícitamente en lugar de tratarla como
+opción desconocida.
+
+**Códigos de salida.** `0` correcto · `1` error de argumentos o de lectura ·
+`2` incoherencia interna en las métricas · `3` memoria insuficiente.
+
 ### Ejemplos
 
 ```bash

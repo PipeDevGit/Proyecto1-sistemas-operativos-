@@ -15,6 +15,7 @@
 #include <cstring>
 #include <fstream>
 #include <iostream>
+#include <new>
 #include <string>
 #include <vector>
 
@@ -166,7 +167,15 @@ int main(int argc, char** argv) {
         else if (a == "--sin-color")        cfg.color     = false;
         else if (a == "--ayuda" || a == "-h") { ayuda(argv[0]); return 0; }
         else {
-            std::cerr << "Opcion no reconocida: " << a << "\n\n";
+            // Se distingue una opcion valida a la que le falta el valor de una
+            // opcion que directamente no existe: el usuario necesita saber cual
+            // de los dos errores cometio.
+            if (a == "--cadena" || a == "--marcos" ||
+                a == "--algoritmo" || a == "--csv") {
+                std::cerr << "Error: la opcion " << a << " requiere un valor.\n\n";
+            } else {
+                std::cerr << "Error: opcion no reconocida: " << a << "\n\n";
+            }
             ayuda(argv[0]);
             return 1;
         }
@@ -190,6 +199,18 @@ int main(int argc, char** argv) {
         return 1;
     }
 
+    // Mas marcos que referencias es imposible de aprovechar: cada referencia
+    // carga a lo sumo una pagina. Sin este limite, un valor absurdo como
+    // --marcos 2000000000 intentaba reservar el arreglo de marcos y abortaba
+    // con un std::bad_alloc sin capturar, en vez de dar un error legible.
+    if (static_cast<size_t>(cfg.marcos) > cadena.size()) {
+        std::cerr << "Error: --marcos (" << cfg.marcos << ") supera el numero de "
+                  << "referencias de la cadena (" << cadena.size() << ").\n"
+                  << "       Mas marcos que referencias no puede cambiar el "
+                  << "resultado.\n";
+        return 1;
+    }
+
     const int distintas = paginasDistintas(cadena);
     if (cfg.color) printf("\033[90m");
     printf("  Cadena: %s\n", cfg.cadena.c_str());
@@ -208,23 +229,33 @@ int main(int argc, char** argv) {
 
     const bool todos = (cfg.algoritmo == "todos");
 
-    if (todos || cfg.algoritmo == "fifo") {
-        traza.clear();
-        resultados.push_back(simular<FIFO>(cadena, cfg.marcos, "FIFO", cfg.cadena,
-                                           cfg.traza ? &traza : 0));
-        if (cfg.traza) imprimirTraza(traza, cfg.marcos, "FIFO", cfg.color);
-    }
-    if (todos || cfg.algoritmo == "lru") {
-        traza.clear();
-        resultados.push_back(simular<LRU>(cadena, cfg.marcos, "LRU", cfg.cadena,
-                                          cfg.traza ? &traza : 0));
-        if (cfg.traza) imprimirTraza(traza, cfg.marcos, "LRU", cfg.color);
-    }
-    if (todos || cfg.algoritmo == "optimo") {
-        traza.clear();
-        resultados.push_back(simular<Optimo>(cadena, cfg.marcos, "OPTIMO", cfg.cadena,
-                                             cfg.traza ? &traza : 0));
-        if (cfg.traza) imprimirTraza(traza, cfg.marcos, "OPTIMO", cfg.color);
+    // Red de seguridad ante agotamiento de memoria. Con una cadena muy larga y
+    // la traza activada se reserva un registro por referencia; si el sistema no
+    // puede satisfacerlo, conviene informarlo y salir con un codigo propio en
+    // lugar de abortar con una excepcion sin capturar.
+    try {
+        if (todos || cfg.algoritmo == "fifo") {
+            traza.clear();
+            resultados.push_back(simular<FIFO>(cadena, cfg.marcos, "FIFO", cfg.cadena,
+                                               cfg.traza ? &traza : 0));
+            if (cfg.traza) imprimirTraza(traza, cfg.marcos, "FIFO", cfg.color);
+        }
+        if (todos || cfg.algoritmo == "lru") {
+            traza.clear();
+            resultados.push_back(simular<LRU>(cadena, cfg.marcos, "LRU", cfg.cadena,
+                                              cfg.traza ? &traza : 0));
+            if (cfg.traza) imprimirTraza(traza, cfg.marcos, "LRU", cfg.color);
+        }
+        if (todos || cfg.algoritmo == "optimo") {
+            traza.clear();
+            resultados.push_back(simular<Optimo>(cadena, cfg.marcos, "OPTIMO", cfg.cadena,
+                                                 cfg.traza ? &traza : 0));
+            if (cfg.traza) imprimirTraza(traza, cfg.marcos, "OPTIMO", cfg.color);
+        }
+    } catch (const std::bad_alloc&) {
+        std::cerr << "\nError: memoria insuficiente para simular esta combinacion.\n"
+                  << "       Probá con una cadena mas corta o sin --traza.\n";
+        return 3;
     }
 
     imprimirResumen(resultados, cfg);
