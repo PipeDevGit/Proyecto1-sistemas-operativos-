@@ -18,14 +18,17 @@
 //   linea vacia y fin de entrada (Ctrl+D / Ctrl+Z)- se manejan explicitamente.
 //
 // ESTADO
-//   Fase 1 de 8. El menu navega y el directorio controlado ya filtra rutas.
-//   Las opciones marcadas [pendiente] se implementan en las fases 2, 3 y 6.
+//   Fase 2 de 8. Gestion de archivos y auditoria de permisos completas.
+//   Las opciones marcadas [pendiente] se implementan en las fases 3 y 6.
 // ---------------------------------------------------------------------------
 #include <cstdio>
 #include <iostream>
 #include <string>
+#include <vector>
 
 #include "Consola.h"
+#include "GestorArchivos.h"
+#include "Permisos.h"
 #include "Sandbox.h"
 
 namespace {
@@ -97,6 +100,25 @@ Lectura leerLinea(const std::string& prompt, std::string& destino) {
     return Lectura::Dato;
 }
 
+// Informa el resultado de una operacion con la marca de estado uniforme.
+void reportar(const Estilo& e, const Operacion& op) {
+    if (op.ok) consola::ok(e, op.detalle);
+    else       consola::errorConSugerencia(e, op.detalle, op.sugerencia);
+}
+
+// Color del marcador de riesgo de una entrada.
+const char* colorRiesgo(const Estilo& e, Riesgo r) {
+    switch (r) {
+        case Riesgo::Alto:  return e.rojo();
+        case Riesgo::Medio: return e.ambar();
+        default:            return "";
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Vistas
+// ---------------------------------------------------------------------------
+
 void encabezado(const Estilo& e, const Sandbox& caja) {
     std::printf("\n");
     consola::recuadro(e, "ADMINISTRADOR SIMPLIFICADO DE RECURSOS   -   Proyecto 4");
@@ -111,13 +133,161 @@ void menuPrincipal(const Estilo& e) {
                 e.cian(), e.fin(), e.gris(), e.fin());
     std::printf("   %s[3]%s  Monitoreo de memoria         %s[pendiente: fase 3]%s\n",
                 e.cian(), e.fin(), e.gris(), e.fin());
-    std::printf("   %s[4]%s  Auditoria de permisos        %s[pendiente: fase 2]%s\n",
-                e.cian(), e.fin(), e.gris(), e.fin());
+    std::printf("   %s[4]%s  Auditoria de permisos\n", e.cian(), e.fin());
     std::printf("   %s[5]%s  Demostracion de E/S          %s[pendiente: fase 6]%s\n",
                 e.cian(), e.fin(), e.gris(), e.fin());
     std::printf("   %s[6]%s  Consumo de esta herramienta  %s[pendiente: fase 3]%s\n",
                 e.cian(), e.fin(), e.gris(), e.fin());
     std::printf("   %s[0]%s  Salir\n\n", e.cian(), e.fin());
+}
+
+// Listado tabular. Las columnas van con ancho fijo para que los datos queden
+// alineados en vertical: una tabla desalineada fue exactamente la observacion
+// que le costo un punto al Proyecto 1.
+void verListado(const Estilo& e, const Sandbox& caja) {
+    std::vector<EntradaArchivo> entradas;
+    const Operacion op = gestor::listar(caja, entradas);
+
+    consola::titulo(e, "CONTENIDO DEL DIRECTORIO DE TRABAJO");
+    if (!op.ok) { reportar(e, op); return; }
+
+    if (entradas.empty()) {
+        std::printf("  %sEl directorio esta vacio.%s\n", e.gris(), e.fin());
+        return;
+    }
+
+    std::printf("  %s%-5s %-4s %-10s %12s  %-16s %s%s\n", e.negrita(),
+                "Tipo", "Oct", "Permisos", "Tamano", "Modificado", "Nombre", e.fin());
+    consola::regla(e, 74);
+
+    size_t conRiesgo = 0;
+    for (const EntradaArchivo& en : entradas) {
+        if (!en.legible) {
+            std::printf("  %s%-5s %-4s %-10s %12s  %-16s %s  (%s)%s\n",
+                        e.gris(), "?", "---", "---------", "-", "-",
+                        en.nombre.c_str(), en.problema.c_str(), e.fin());
+            continue;
+        }
+
+        const Riesgo   rg  = permisos::evaluar(en.permisos, en.esDirectorio);
+        const char*    col = colorRiesgo(e, rg);
+        if (rg != Riesgo::Ninguno) ++conRiesgo;
+
+        const std::string tam = en.esDirectorio ? "-" : consola::formatearBytes(en.tamano);
+
+        std::printf("  %-5s %s%-4s %-10s%s %12s  %-16s %s%s%s\n",
+                    en.esDirectorio ? "dir" : "arch",
+                    col, permisos::octalTexto(en.permisos).c_str(),
+                    permisos::rwx(en.permisos).c_str(), e.fin(),
+                    tam.c_str(), en.fecha.c_str(),
+                    en.nombre.c_str(),
+                    rg != Riesgo::Ninguno ? "  <-- riesgo" : "", e.fin());
+    }
+
+    consola::regla(e, 74);
+    std::printf("  %s%zu entrada%s", e.gris(), entradas.size(), entradas.size() == 1 ? "" : "s");
+    if (conRiesgo > 0)
+        std::printf("  ·  %s%zu con permisos de riesgo%s%s (ver opcion 4 del menu principal)",
+                    e.rojo(), conRiesgo, e.fin(), e.gris());
+    std::printf("%s\n", e.fin());
+}
+
+void verMetadatos(const Estilo& e, const Sandbox& caja) {
+    consola::titulo(e, "METADATOS DE UN ARCHIVO");
+
+    std::string nombre;
+    if (leerLinea("  Nombre (Enter para volver): ", nombre) != Lectura::Dato) return;
+
+    EntradaArchivo en;
+    const Operacion op = gestor::metadatos(caja, nombre, en);
+    std::printf("\n");
+    if (!op.ok) { reportar(e, op); return; }
+
+    const Riesgo rg = permisos::evaluar(en.permisos, en.esDirectorio);
+
+    std::printf("  %-22s %s\n", "Nombre:", en.nombre.c_str());
+    std::printf("  %-22s %s\n", "Tipo:", en.esDirectorio ? "directorio" : "archivo regular");
+    if (!en.esDirectorio)
+        std::printf("  %-22s %s (%ju bytes)\n", "Tamano:",
+                    consola::formatearBytes(en.tamano).c_str(),
+                    static_cast<uintmax_t>(en.tamano));
+    std::printf("  %-22s %s\n", "Modificado:", en.fecha.c_str());
+    std::printf("  %-22s %s%s  %s%s\n", "Permisos:",
+                colorRiesgo(e, rg), permisos::octalTexto(en.permisos).c_str(),
+                permisos::rwx(en.permisos).c_str(), e.fin());
+
+    if (rg != Riesgo::Ninguno)
+        std::printf("  %-22s %s%s%s\n", "Advertencia:", colorRiesgo(e, rg),
+                    permisos::explicar(en.permisos, en.esDirectorio).c_str(), e.fin());
+
+    std::printf("  %s%-22s los tres digitos son usuario, grupo y otros;%s\n",
+                e.gris(), "", e.fin());
+    std::printf("  %s%-22s 4 = leer, 2 = escribir, 1 = ejecutar%s\n", e.gris(), "", e.fin());
+}
+
+void hacerCrear(const Estilo& e, const Sandbox& caja) {
+    consola::titulo(e, "CREAR ARCHIVO");
+
+    std::string nombre;
+    if (leerLinea("  Nombre (Enter para volver): ", nombre) != Lectura::Dato) return;
+
+    std::string contenido;
+    leerLinea("  Contenido (opcional): ", contenido);
+
+    std::printf("\n");
+    reportar(e, gestor::crear(caja, nombre, contenido));
+}
+
+void hacerEliminar(const Estilo& e, const Sandbox& caja) {
+    consola::titulo(e, "ELIMINAR ARCHIVO");
+    std::printf("  %sSolo se eliminan archivos y directorios vacios; no hay borrado en cascada.%s\n\n",
+                e.gris(), e.fin());
+
+    std::string nombre;
+    if (leerLinea("  Nombre (Enter para volver): ", nombre) != Lectura::Dato) return;
+
+    std::printf("\n");
+    reportar(e, gestor::eliminar(caja, nombre));
+}
+
+// Auditoria de permisos: el equivalente explicado de 'find . -perm -o+w'.
+void verAuditoria(const Estilo& e, const Sandbox& caja) {
+    consola::titulo(e, "AUDITORIA DE PERMISOS");
+    std::printf("  %sBusca entradas que cualquier usuario del sistema pueda modificar.%s\n",
+                e.gris(), e.fin());
+    std::printf("  %sEs el equivalente de  find . -perm -o+w  del laboratorio 5.%s\n\n",
+                e.gris(), e.fin());
+
+    std::vector<EntradaArchivo> riesgosas;
+    size_t revisadas = 0;
+    const Operacion op = gestor::auditar(caja, riesgosas, revisadas);
+    if (!op.ok) { reportar(e, op); return; }
+
+    if (riesgosas.empty()) {
+        consola::ok(e, "ninguna entrada de riesgo entre las " +
+                       std::to_string(revisadas) + " revisadas.");
+        return;
+    }
+
+    std::printf("  %s%-5s %-4s %-10s %-26s %s%s\n", e.negrita(),
+                "Tipo", "Oct", "Permisos", "Nombre", "Por que", e.fin());
+    consola::regla(e, 74);
+
+    for (const EntradaArchivo& en : riesgosas) {
+        const Riesgo rg  = permisos::evaluar(en.permisos, en.esDirectorio);
+        const char*  col = colorRiesgo(e, rg);
+        std::printf("  %-5s %s%-4s %-10s%s %-26s %s%s%s\n",
+                    en.esDirectorio ? "dir" : "arch",
+                    col, permisos::octalTexto(en.permisos).c_str(),
+                    permisos::rwx(en.permisos).c_str(), e.fin(),
+                    en.nombre.c_str(),
+                    col, permisos::explicar(en.permisos, en.esDirectorio).c_str(), e.fin());
+    }
+
+    consola::regla(e, 74);
+    std::printf("  %s%zu de %zu entradas marcadas.%s\n",
+                e.gris(), riesgosas.size(), revisadas, e.fin());
+    std::printf("  %sPara corregir en Linux:  chmod o-w ARCHIVO%s\n", e.gris(), e.fin());
 }
 
 // Diagnostico del directorio controlado. Existe como opcion visible del menu
@@ -148,14 +318,10 @@ void probarRuta(const Estilo& e, const Sandbox& caja) {
 void submenuArchivos(const Estilo& e, const Sandbox& caja) {
     for (;;) {
         consola::titulo(e, "GESTION DE ARCHIVOS");
-        std::printf("   %s[1]%s  Listar         %s[pendiente: fase 2]%s\n",
-                    e.cian(), e.fin(), e.gris(), e.fin());
-        std::printf("   %s[2]%s  Crear          %s[pendiente: fase 2]%s\n",
-                    e.cian(), e.fin(), e.gris(), e.fin());
-        std::printf("   %s[3]%s  Eliminar       %s[pendiente: fase 2]%s\n",
-                    e.cian(), e.fin(), e.gris(), e.fin());
-        std::printf("   %s[4]%s  Ver metadatos  %s[pendiente: fase 2]%s\n",
-                    e.cian(), e.fin(), e.gris(), e.fin());
+        std::printf("   %s[1]%s  Listar\n", e.cian(), e.fin());
+        std::printf("   %s[2]%s  Crear\n", e.cian(), e.fin());
+        std::printf("   %s[3]%s  Eliminar\n", e.cian(), e.fin());
+        std::printf("   %s[4]%s  Ver metadatos\n", e.cian(), e.fin());
         std::printf("   %s[5]%s  Validar una ruta contra el directorio controlado\n",
                     e.cian(), e.fin());
         std::printf("   %s[0]%s  Volver\n\n", e.cian(), e.fin());
@@ -165,16 +331,14 @@ void submenuArchivos(const Estilo& e, const Sandbox& caja) {
         if (estado == Lectura::Fin)   { std::printf("\n"); return; }
         if (estado == Lectura::Vacia) continue;
 
-        if (opcion == "0") {
-            return;
-        } else if (opcion == "5") {
-            probarRuta(e, caja);
-        } else if (opcion == "1" || opcion == "2" || opcion == "3" || opcion == "4") {
-            consola::aviso(e, "esta opcion se implementa en la fase 2.");
-        } else {
-            consola::errorConSugerencia(e, "opcion " + opcion + " no valida.",
-                                        "escribí un numero del 0 al 5.");
-        }
+        if      (opcion == "0") return;
+        else if (opcion == "1") verListado(e, caja);
+        else if (opcion == "2") hacerCrear(e, caja);
+        else if (opcion == "3") hacerEliminar(e, caja);
+        else if (opcion == "4") verMetadatos(e, caja);
+        else if (opcion == "5") probarRuta(e, caja);
+        else consola::errorConSugerencia(e, "opcion " + opcion + " no valida.",
+                                         "escribí un numero del 0 al 5.");
     }
 }
 
@@ -219,8 +383,9 @@ int main(int argc, char** argv) {
             return 0;
         } else if (opcion == "1") {
             submenuArchivos(e, caja);
-        } else if (opcion == "2" || opcion == "3" || opcion == "4" ||
-                   opcion == "5" || opcion == "6") {
+        } else if (opcion == "4") {
+            verAuditoria(e, caja);
+        } else if (opcion == "2" || opcion == "3" || opcion == "5" || opcion == "6") {
             consola::aviso(e, "esta opcion todavia no esta implementada.");
         } else {
             consola::errorConSugerencia(e, "opcion " + opcion + " no valida.",

@@ -86,7 +86,10 @@ inline void regla(const Estilo& e, int ancho) {
     std::printf("%s\n", e.fin());
 }
 
-inline void titulo(const Estilo& e, const char* texto, int ancho = 66) {
+// 74 es el ancho de las tablas de listado y auditoria: el subrayado del
+// titulo tiene que medir lo mismo que la tabla que encabeza, o la vista
+// queda visiblemente descuadrada.
+inline void titulo(const Estilo& e, const char* texto, int ancho = 74) {
     std::printf("\n%s%s%s\n", e.negrita(), texto, e.fin());
     regla(e, ancho);
 }

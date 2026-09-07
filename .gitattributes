@@ -1,0 +1,10 @@
+# Los archivos de texto se guardan siempre con finales de linea LF en el
+# repositorio, sin importar desde que sistema se editen. Sin esto, editar un
+# archivo desde Windows puede convertirlo entero a CRLF y hacer que git lo
+# reporte como si hubieran cambiado todas sus lineas, escondiendo el cambio
+# real dentro del ruido.
+* text=auto eol=lf
+*.png binary
+*.pdf binary
+*.docx binary
+*.xlsx binary
