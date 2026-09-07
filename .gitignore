@@ -4,3 +4,14 @@ demo_deadlock
 reporte
 *.exe
 .vscode/
+
+# Proyecto 4
+administrador
+administrador.exe
+benchmark
+generar
+carga
+test_recursos
+# los datasets de prueba se generan con un script versionado, no se versionan
+proyecto4-administrador-recursos/data/workspace/*
+!proyecto4-administrador-recursos/data/workspace/.gitkeep
