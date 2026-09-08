@@ -18,10 +18,11 @@
 //   linea vacia y fin de entrada (Ctrl+D / Ctrl+Z)- se manejan explicitamente.
 //
 // ESTADO
-//   Fase 2 de 8. Gestion de archivos y auditoria de permisos completas.
-//   Las opciones marcadas [pendiente] se implementan en las fases 3 y 6.
+//   Fase 3 de 8. Los cuatro requisitos funcionales estan implementados.
+//   La demostracion de E/S llega en la fase 6.
 // ---------------------------------------------------------------------------
 #include <cstdio>
+#include <cstdlib>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -29,7 +30,10 @@
 #include "Consola.h"
 #include "GestorArchivos.h"
 #include "Permisos.h"
+#include "MonitorMemoria.h"
+#include "MonitorProcesos.h"
 #include "Sandbox.h"
+#include "VistasSistema.h"
 
 namespace {
 
@@ -37,6 +41,15 @@ struct Config {
     std::string base  = "data/workspace";
     bool        color = true;
     bool        ascii = false;
+
+    // Cuantos procesos se muestran en el listado. 15 entra en una pantalla sin
+    // hacer scroll; el laboratorio 6 usa 5, y el total siempre se informa.
+    size_t      cuantos = 15;
+
+    // Fuente de procesos forzada. Vacia = probar en orden de preferencia.
+    // Existe para poder comparar las dos rutas entre si, y para demostrar el
+    // error de "comando no disponible" pidiendo la que no esta.
+    std::string fuenteProcesos;
 };
 
 void ayuda(const char* prog) {
@@ -45,6 +58,8 @@ void ayuda(const char* prog) {
     std::printf("  --base RUTA     directorio de trabajo controlado (data/workspace)\n");
     std::printf("  --sin-color     desactiva los codigos ANSI de color\n");
     std::printf("  --ascii         sustituye los caracteres de dibujo UTF-8 por ASCII\n");
+    std::printf("  --procesos N    cuantos procesos listar (15)\n");
+    std::printf("  --fuente NOMBRE forzar la fuente de procesos, p. ej. /proc o ps\n");
     std::printf("  --ayuda         muestra esta ayuda\n\n");
     std::printf("Con --sin-color y --ascii juntos, la salida es ASCII puro.\n");
 }
@@ -72,6 +87,26 @@ bool leerArgumentos(int argc, char** argv, Config& cfg, int& codigoSalida) {
                 return false;
             }
             cfg.base = argv[++i];
+        } else if (a == "--fuente") {
+            if (i + 1 >= argc) {
+                std::fprintf(stderr, "Error: --fuente necesita un nombre.\n");
+                codigoSalida = 1;
+                return false;
+            }
+            cfg.fuenteProcesos = argv[++i];
+        } else if (a == "--procesos") {
+            if (i + 1 >= argc) {
+                std::fprintf(stderr, "Error: --procesos necesita un numero.\n");
+                codigoSalida = 1;
+                return false;
+            }
+            const long n = std::strtol(argv[++i], nullptr, 10);
+            if (n <= 0) {
+                std::fprintf(stderr, "Error: --procesos necesita un numero positivo.\n");
+                codigoSalida = 1;
+                return false;
+            }
+            cfg.cuantos = static_cast<size_t>(n);
         } else {
             std::fprintf(stderr, "Error: opcion desconocida %s. Probá --ayuda.\n", a.c_str());
             codigoSalida = 1;
@@ -129,15 +164,13 @@ void encabezado(const Estilo& e, const Sandbox& caja) {
 void menuPrincipal(const Estilo& e) {
     std::printf("\n");
     std::printf("   %s[1]%s  Gestion de archivos\n", e.cian(), e.fin());
-    std::printf("   %s[2]%s  Monitoreo de procesos        %s[pendiente: fase 3]%s\n",
-                e.cian(), e.fin(), e.gris(), e.fin());
-    std::printf("   %s[3]%s  Monitoreo de memoria         %s[pendiente: fase 3]%s\n",
-                e.cian(), e.fin(), e.gris(), e.fin());
+    std::printf("   %s[2]%s  Monitoreo de procesos\n", e.cian(), e.fin());
+    std::printf("   %s[3]%s  Monitoreo de memoria\n", e.cian(), e.fin());
     std::printf("   %s[4]%s  Auditoria de permisos\n", e.cian(), e.fin());
     std::printf("   %s[5]%s  Demostracion de E/S          %s[pendiente: fase 6]%s\n",
                 e.cian(), e.fin(), e.gris(), e.fin());
-    std::printf("   %s[6]%s  Consumo de esta herramienta  %s[pendiente: fase 3]%s\n",
-                e.cian(), e.fin(), e.gris(), e.fin());
+    std::printf("   %s[6]%s  Consumo de esta herramienta\n", e.cian(), e.fin());
+    std::printf("   %s[7]%s  Fuentes de datos de esta plataforma\n", e.cian(), e.fin());
     std::printf("   %s[0]%s  Salir\n\n", e.cian(), e.fin());
 }
 
@@ -315,6 +348,46 @@ void probarRuta(const Estilo& e, const Sandbox& caja) {
     }
 }
 
+// Submenu de procesos. El detalle por PID vive aca y no dentro del listado
+// porque pedir un PID exige una interaccion mas, y mezclarlas dejaria al
+// listado -que es la operacion frecuente- esperando entrada en cada consulta.
+void submenuProcesos(const Estilo& e, const Config& cfg) {
+    for (;;) {
+        vistas::procesos(e, cfg.cuantos, cfg.fuenteProcesos);
+
+        std::printf("\n   %s[1]%s  Ver el detalle de un proceso por PID\n", e.cian(), e.fin());
+        std::printf("   %s[2]%s  Volver a consultar\n", e.cian(), e.fin());
+        std::printf("   %s[0]%s  Volver\n\n", e.cian(), e.fin());
+
+        std::string opcion;
+        const Lectura estado = leerLinea("  Opcion: ", opcion);
+        if (estado == Lectura::Fin)   { std::printf("\n"); return; }
+        if (estado == Lectura::Vacia) continue;
+
+        if (opcion == "0") return;
+        if (opcion == "2") continue;
+        if (opcion != "1") {
+            consola::errorConSugerencia(e, "opcion " + opcion + " no valida.",
+                                        "escribi un numero del 0 al 2.");
+            continue;
+        }
+
+        std::string texto;
+        if (leerLinea("  PID: ", texto) != Lectura::Dato) continue;
+
+        // El PID se valida entero antes de usarlo: escribir una letra aca no
+        // debe terminar convertido en una consulta del proceso 0.
+        char* fin = nullptr;
+        const long pid = std::strtol(texto.c_str(), &fin, 10);
+        if (fin == texto.c_str() || *fin != 0 || pid <= 0) {
+            consola::errorConSugerencia(e, "'" + texto + "' no es un PID valido.",
+                                        "el PID es un entero positivo de la columna PID");
+            continue;
+        }
+        vistas::detalleProceso(e, pid);
+    }
+}
+
 void submenuArchivos(const Estilo& e, const Sandbox& caja) {
     for (;;) {
         consola::titulo(e, "GESTION DE ARCHIVOS");
@@ -383,13 +456,21 @@ int main(int argc, char** argv) {
             return 0;
         } else if (opcion == "1") {
             submenuArchivos(e, caja);
+        } else if (opcion == "2") {
+            submenuProcesos(e, cfg);
+        } else if (opcion == "3") {
+            vistas::memoria(e);
         } else if (opcion == "4") {
             verAuditoria(e, caja);
-        } else if (opcion == "2" || opcion == "3" || opcion == "5" || opcion == "6") {
-            consola::aviso(e, "esta opcion todavia no esta implementada.");
+        } else if (opcion == "6") {
+            vistas::consumoPropio(e);
+        } else if (opcion == "7") {
+            vistas::fuentes(e);
+        } else if (opcion == "5") {
+            consola::aviso(e, "esta opcion se implementa en la fase 6.");
         } else {
             consola::errorConSugerencia(e, "opcion " + opcion + " no valida.",
-                                        "escribí un numero del 0 al 6.");
+                                        "escribí un numero del 0 al 7.");
         }
     }
 }

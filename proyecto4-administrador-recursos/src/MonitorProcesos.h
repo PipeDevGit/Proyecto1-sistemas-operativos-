@@ -1,0 +1,118 @@
+// ---------------------------------------------------------------------------
+// MonitorProcesos.h - Requisito funcional 2
+// Proyecto 4: Administrador Simplificado de Recursos
+// TIIT2007 Sistemas Operativos - Universidad Invenio
+// Isaac Felipe Morun Moreira
+//
+// QUE RESUELVE
+//   Declara COMO se pide la lista de procesos activos del sistema anfitrion.
+//   Igual que MonitorMemoria.h, es solo el contrato: las implementaciones
+//   viven en SistemaInfo.cpp, el unico archivo con #ifdef.
+//
+// LAS DOS RUTAS, Y POR QUE ESTAN LAS DOS
+//   El enunciado dice que se puede "invocar comandos del SO (ps/tasklist) y
+//   parsear su salida, o usar APIs del sistema", y exige declarar cual. Se
+//   implementan ambas porque tenerlas juntas da tres cosas que por separado no
+//   se consiguen:
+//     1. El error "comando no disponible" que el enunciado obliga a manejar se
+//        puede DEMOSTRAR de verdad, alterando el PATH y viendo actuar el
+//        respaldo, en vez de solo afirmarse.
+//     2. Se pueden medir. Leer /proc no crea ningun proceso; invocar 'ps'
+//        implica fork + exec + un interprete de comandos + parseo de texto. La
+//        diferencia en microsegundos es la comparacion cuantitativa explicita
+//        que pide la Rubrica 1.
+//     3. La pregunta de defensa "de donde saca tu programa la informacion de
+//        procesos" se responde mostrando las dos y explicando el costo de cada
+//        una, en vez de con una sola frase.
+//
+// SOBRE EL PORCENTAJE DE CPU
+//   Es el promedio desde que arranco el proceso, no el instantaneo: tiempo de
+//   CPU acumulado dividido por el tiempo que lleva vivo. Es exactamente lo que
+//   reporta la columna %CPU de 'ps aux', y por eso los dos numeros se pueden
+//   contrastar. El instantaneo exigiria dos muestras separadas en el tiempo.
+//   Un valor mayor a 100 no es un error: en una maquina con varios nucleos, un
+//   proceso con varios hilos puede acumular mas segundos de CPU que de reloj.
+// ---------------------------------------------------------------------------
+#ifndef MONITORPROCESOS_H
+#define MONITORPROCESOS_H
+
+#include <string>
+#include <vector>
+
+// Un proceso del sistema anfitrion.
+struct ProcesoInfo {
+    long        pid = 0;
+    std::string nombre;
+
+    // Estado en la convencion de Linux, que es la que se usa en clase:
+    //   R corriendo   S durmiendo   D durmiendo sin interrumpir (espera de E/S)
+    //   Z zombi       T detenido    ? desconocido o no informado por la fuente
+    char estado = '?';
+
+    double cpuPorcentaje  = 0.0;   // promedio desde el arranque del proceso
+    double memPorcentaje  = 0.0;   // residente sobre el total del sistema
+
+    unsigned long long memResidente = 0;   // bytes realmente en RAM (RSS)
+    double             tiempoUsuario = 0.0; // segundos de CPU en modo usuario
+    double             tiempoSistema = 0.0; // segundos de CPU dentro del kernel
+};
+
+// Consumo de la propia herramienta mientras opera. Es un resultado
+// experimental obligatorio del enunciado, y se mide con el mismo mecanismo que
+// usa el monitoreo del resto del proyecto: en Linux, leyendo /proc.
+struct ConsumoPropio {
+    bool        ok = false;
+    std::string problema;
+    std::string fuente;
+
+    unsigned long long memResidente = 0;   // VmRSS: lo que ocupa en RAM
+    unsigned long long memVirtual   = 0;   // VmSize: espacio de direcciones reservado
+    double             tiempoUsuario = 0.0;
+    double             tiempoSistema = 0.0;
+};
+
+// Contrato que cumple cada forma de listar los procesos.
+class IProveedorProcesos {
+public:
+    virtual ~IProveedorProcesos() {}
+
+    // Nombre exacto del mecanismo, tal como se declara en el IEEE:
+    // "/proc", "ps", "CreateToolhelp32Snapshot", "tasklist".
+    virtual const char* nombre() const = 0;
+
+    // "archivo del sistema", "comando externo" o "API del sistema".
+    virtual const char* mecanismo() const = 0;
+
+    virtual bool disponible() const = 0;
+
+    // Llena 'salida' y devuelve cadena vacia si todo fue bien; si no, el
+    // motivo del fallo. No se usan excepciones por la misma razon que en
+    // GestorArchivos: que un comando no este instalado es una condicion
+    // esperable, no excepcional.
+    virtual std::string listar(std::vector<ProcesoInfo>& salida) const = 0;
+};
+
+namespace sistema {
+
+// Proveedores de procesos de ESTA plataforma, en orden de preferencia.
+// Los punteros son a objetos estaticos: no hay que liberarlos.
+const std::vector<const IProveedorProcesos*>& proveedoresProcesos();
+
+// Lista los procesos probando los proveedores en orden hasta que uno responda.
+// Si 'preferido' no esta vacio, se intenta primero el que tenga ese nombre.
+// 'fuenteUsada' recibe el nombre del proveedor que finalmente funciono.
+std::string listarProcesos(std::vector<ProcesoInfo>& salida,
+                           std::string& fuenteUsada,
+                           const std::string& preferido = "");
+
+// Consumo de recursos de esta misma herramienta.
+ConsumoPropio consumoPropio();
+
+// Nombre legible del sistema operativo y del compilador con que se construyo.
+// Sirve para que el informe experimental declare su entorno sin que el usuario
+// tenga que transcribirlo a mano.
+std::string descripcionPlataforma();
+
+} // namespace sistema
+
+#endif // MONITORPROCESOS_H
