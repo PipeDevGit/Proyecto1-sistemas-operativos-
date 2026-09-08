@@ -1,0 +1,95 @@
+===========================================================
+ PANEL DE RECURSOS - Linux            2026-09-08 04:57:12
+===========================================================
+Linux UbuntuVM 7.0.0-30-generic #30-Ubuntu SMP PREEMPT_DYNAMIC Fri Jul 31 18:22:54 UTC 2026 x86_64 GNU/Linux
+Nucleos logicos: 6
+
+=== 1. CPU ===================================================
+$ uptime   (carga media de 1, 5 y 15 minutos)
+ 04:57:13 up 26 min,  3 users,  load average: 0.59, 0.39, 0.29
+
+Uso de CPU calculado desde /proc/stat:
+Uso de CPU en los ultimos 2s: 2%
+Carga media (1, 5 y 15 minutos): 0.59 0.39 0.29
+
+$ mpstat 2 2
+04:57:15 AM  CPU    %usr   %nice    %sys %iowait    %irq   %soft  %steal  %guest  %gnice   %idle
+04:57:17 AM  all    0.25    0.00    0.41    0.00    0.00    0.82    0.00    0.00    0.00   98.53
+04:57:19 AM  all    0.17    0.00    0.51    0.00    0.00    0.94    0.00    0.00    0.00   98.37
+Average:     all    0.21    0.00    0.46    0.00    0.00    0.88    0.00    0.00    0.00   98.45
+
+=== 2. MEMORIA ===================================================
+$ free -h
+               total        used        free      shared  buff/cache   available
+Mem:           7.2Gi       1.2Gi       5.2Gi       1.1Mi       1.1Gi       6.0Gi
+Swap:             0B          0B          0B
+
+$ grep -E '^(MemTotal|MemAvailable|SwapTotal):' /proc/meminfo
+MemTotal:        7601592 kB
+MemAvailable:    6341760 kB
+SwapTotal:             0 kB
+
+=== 3. DISCO ===================================================
+$ df -h /
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/sda2        25G   10G   14G  43% /
+
+$ head -3 /proc/diskstats
+   7       0 loop0 11 0 28 0 0 0 0 0 0 1 0 0 0 0 0 0 0
+   7       1 loop1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   7       2 loop2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+
+=== 4. PROCESOS ===================================================
+$ ps -eo pid,pcpu,pmem,rss,stat,comm --sort=-rss | head -6
+    PID %CPU %MEM   RSS STAT COMMAND
+   1589  2.2  5.6 427956 Sl  MainThread
+   1685  0.3  4.0 308004 Sl  MainThread
+   1653  0.6  1.7 135388 Sl  MainThread
+   1533  1.0  1.6 126504 Sl  MainThread
+   1583  0.2  1.2 94292 Sl   MainThread
+
+Procesos totales: 191
+
+=== 5. INTERRUPCIONES  (Unidad VI) ===================================================
+$ head -5 /proc/interrupts
+           CPU0       CPU1       CPU2       CPU3       CPU4       CPU5       
+  0:        182          0          0          0          0          0  IO-APIC   2-edge      timer
+  1:         39          0          0          0          0          0  IO-APIC   1-edge      i8042
+  8:          0          0          0          0          0          0  IO-APIC   8-edge      rtc0
+  9:          0          0          0          0          0          0  IO-APIC   9-fasteoi   acpi
+
+Cada fila es una linea de peticion de interrupcion (IRQ) y cuantas veces
+la atendio cada nucleo. Es la evidencia mas directa de que la E/S del
+sistema funciona por interrupciones y no por consulta en bucle.
+
+=== 6. LO MISMO, SEGUN LA HERRAMIENTA DEL PROYECTO ===================================================
+MEMORIA DEL SISTEMA ANFITRION
+--------------------------------------------------------------------------
+  Total:                 7.2 GB
+  Usada:                 1.2 GB
+  Disponible:            6.0 GB
+
+  [######............................]  16.6%
+
+  Fuente: /proc/meminfo
+       PID Nombre                 Est     %CPU     %MEM    Residente
+--------------------------------------------------------------------------
+      1589 MainThread             S        2.3      5.6     417.3 MB
+      1685 MainThread             S        0.3      4.0     300.3 MB
+      1653 MainThread             S        0.6      1.8     131.5 MB
+      1533 MainThread             S        1.0      1.7     122.9 MB
+      1583 MainThread             S        0.2      1.2      91.7 MB
+--------------------------------------------------------------------------
+  190 procesos en total; se muestran los 5 de mayor memoria residente.
+  Fuente: /proc
+  Memoria residente:               4.2 MB
+  Memoria virtual:                 6.9 MB
+  Tiempo de usuario:            0.0700 s
+  Tiempo de sistema:            0.1100 s
+
+  Fuente: /proc/self/status y /proc/self/stat
+
+===========================================================
+ Los numeros de los apartados 2 y 4 deben coincidir con los
+ del apartado 6. Si no coincidieran, la herramienta estaria mal.
+===========================================================

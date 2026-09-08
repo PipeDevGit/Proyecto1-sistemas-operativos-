@@ -47,8 +47,10 @@ REPORTE   = herramientas/reporte
 
 all: $(BIN) $(BENCHMARK) $(CARGA) $(REPORTE)
 
+# Lleva -pthread porque la demostracion de E/S de la Unidad VI usa
+# std::thread para simular el dispositivo que avisa cuando termina.
 $(BIN): $(OBJ)
-	$(CXX) $(CXXFLAGS) -o $@ $(OBJ) $(LIBS)
+	$(CXX) $(CXXFLAGS) -o $@ $(OBJ) $(LIBS) $(HILOS)
 
 %.o: %.cpp $(HDR)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
@@ -71,7 +73,7 @@ $(REPORTE): herramientas/reporte.cpp
 # La suite enlaza contra SistemaInfo.o, el mismo objeto que usa la herramienta:
 # se prueba el codigo que se entrega, no una copia compilada aparte.
 $(PRUEBAS): tests/test_recursos.cpp src/SistemaInfo.o $(HDR)
-	$(CXX) $(CXXFLAGS) -o $@ tests/test_recursos.cpp src/SistemaInfo.o $(LIBS)
+	$(CXX) $(CXXFLAGS) -o $@ tests/test_recursos.cpp src/SistemaInfo.o $(LIBS) $(HILOS)
 
 tests: $(PRUEBAS)
 	./$(PRUEBAS)

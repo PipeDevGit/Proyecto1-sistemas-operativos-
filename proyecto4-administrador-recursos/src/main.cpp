@@ -18,8 +18,9 @@
 //   linea vacia y fin de entrada (Ctrl+D / Ctrl+Z)- se manejan explicitamente.
 //
 // ESTADO
-//   Fase 3 de 8. Los cuatro requisitos funcionales estan implementados.
-//   La demostracion de E/S llega en la fase 6.
+//   Fase 6 de 8. Los cuatro requisitos funcionales estan implementados,
+//   mas la auditoria de permisos (Unidad V) y la demostracion de E/S
+//   (Unidad VI). Falta la verificacion en Windows y el documento IEEE.
 // ---------------------------------------------------------------------------
 #include <cstdio>
 #include <cstdlib>
@@ -28,6 +29,7 @@
 #include <vector>
 
 #include "Consola.h"
+#include "DemoES.h"
 #include "GestorArchivos.h"
 #include "Permisos.h"
 #include "MonitorMemoria.h"
@@ -50,6 +52,12 @@ struct Config {
     // Existe para poder comparar las dos rutas entre si, y para demostrar el
     // error de "comando no disponible" pidiendo la que no esta.
     std::string fuenteProcesos;
+
+    // Demostracion de E/S. 400 repeticiones de una espera de 2 ms dan casi un
+    // segundo de reloj: suficiente para que el consumo de CPU supere la
+    // resolucion de 10 ms con que /proc informa los tiempos.
+    int repeticionesES = 400;
+    int retrasoES      = 2000;   // microsegundos que tarda el dispositivo
 };
 
 void ayuda(const char* prog) {
@@ -60,6 +68,8 @@ void ayuda(const char* prog) {
     std::printf("  --ascii         sustituye los caracteres de dibujo UTF-8 por ASCII\n");
     std::printf("  --procesos N    cuantos procesos listar (15)\n");
     std::printf("  --fuente NOMBRE forzar la fuente de procesos, p. ej. /proc o ps\n");
+    std::printf("  --es-repeticiones N  esperas por estrategia en la demo de E/S (400)\n");
+    std::printf("  --es-retraso US      cuanto tarda el dispositivo simulado (2000)\n");
     std::printf("  --ayuda         muestra esta ayuda\n\n");
     std::printf("Con --sin-color y --ascii juntos, la salida es ASCII puro.\n");
 }
@@ -107,6 +117,20 @@ bool leerArgumentos(int argc, char** argv, Config& cfg, int& codigoSalida) {
                 return false;
             }
             cfg.cuantos = static_cast<size_t>(n);
+        } else if (a == "--es-repeticiones" || a == "--es-retraso") {
+            if (i + 1 >= argc) {
+                std::fprintf(stderr, "Error: %s necesita un numero.\n", a.c_str());
+                codigoSalida = 1;
+                return false;
+            }
+            const long n = std::strtol(argv[++i], nullptr, 10);
+            if (n <= 0) {
+                std::fprintf(stderr, "Error: %s necesita un numero positivo.\n", a.c_str());
+                codigoSalida = 1;
+                return false;
+            }
+            if (a == "--es-repeticiones") cfg.repeticionesES = static_cast<int>(n);
+            else                          cfg.retrasoES      = static_cast<int>(n);
         } else {
             std::fprintf(stderr, "Error: opcion desconocida %s. Probá --ayuda.\n", a.c_str());
             codigoSalida = 1;
@@ -167,8 +191,8 @@ void menuPrincipal(const Estilo& e) {
     std::printf("   %s[2]%s  Monitoreo de procesos\n", e.cian(), e.fin());
     std::printf("   %s[3]%s  Monitoreo de memoria\n", e.cian(), e.fin());
     std::printf("   %s[4]%s  Auditoria de permisos\n", e.cian(), e.fin());
-    std::printf("   %s[5]%s  Demostracion de E/S          %s[pendiente: fase 6]%s\n",
-                e.cian(), e.fin(), e.gris(), e.fin());
+    std::printf("   %s[5]%s  Demostracion de E/S (polling vs. delegacion)\n",
+                e.cian(), e.fin());
     std::printf("   %s[6]%s  Consumo de esta herramienta\n", e.cian(), e.fin());
     std::printf("   %s[7]%s  Fuentes de datos de esta plataforma\n", e.cian(), e.fin());
     std::printf("   %s[0]%s  Salir\n\n", e.cian(), e.fin());
@@ -467,7 +491,7 @@ int main(int argc, char** argv) {
         } else if (opcion == "7") {
             vistas::fuentes(e);
         } else if (opcion == "5") {
-            consola::aviso(e, "esta opcion se implementa en la fase 6.");
+            demoes::ejecutar(e, cfg.repeticionesES, cfg.retrasoES);
         } else {
             consola::errorConSugerencia(e, "opcion " + opcion + " no valida.",
                                         "escribí un numero del 0 al 7.");
