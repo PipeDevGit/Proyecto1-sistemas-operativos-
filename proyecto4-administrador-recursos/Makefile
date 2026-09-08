@@ -4,6 +4,7 @@
 # Isaac Felipe Morun Moreira
 #
 #   make            compila la herramienta
+#   make tests      compila y corre la suite de pruebas
 #   make clean      borra los binarios
 #
 # Funciona igual en Linux (g++ 15.2.0) y en Windows bajo MSYS2/UCRT64
@@ -31,9 +32,10 @@ endif
 # Sin esto, make no recompila al modificar un .h y se terminan midiendo
 # binarios viejos: paso en el Proyecto 2 y un analisis con ThreadSanitizer
 # llego a reportar cero condiciones de carrera por esa razon.
-HDR = $(wildcard src/*.h)
-SRC = src/main.cpp src/SistemaInfo.cpp
-OBJ = $(SRC:.cpp=.o)
+HDR   = $(wildcard src/*.h)
+SRC   = src/main.cpp src/SistemaInfo.cpp
+OBJ   = $(SRC:.cpp=.o)
+PRUEBAS = tests/test_recursos
 
 all: $(BIN)
 
@@ -43,7 +45,15 @@ $(BIN): $(OBJ)
 %.o: %.cpp $(HDR)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-clean:
-	rm -f $(OBJ) administrador administrador.exe
+# La suite enlaza contra SistemaInfo.o, el mismo objeto que usa la herramienta:
+# se prueba el codigo que se entrega, no una copia compilada aparte.
+$(PRUEBAS): tests/test_recursos.cpp src/SistemaInfo.o $(HDR)
+	$(CXX) $(CXXFLAGS) -o $@ tests/test_recursos.cpp src/SistemaInfo.o $(LIBS)
 
-.PHONY: all clean
+tests: $(PRUEBAS)
+	./$(PRUEBAS)
+
+clean:
+	rm -f $(OBJ) administrador administrador.exe $(PRUEBAS) $(PRUEBAS).exe
+
+.PHONY: all tests clean

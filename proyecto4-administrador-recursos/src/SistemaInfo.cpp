@@ -33,6 +33,7 @@
 //   especifico de Windows, y la regla de que ningun otro archivo tenga #ifdef
 //   pesa mas que la pureza tematica.
 // ---------------------------------------------------------------------------
+#include "AnalisisProcFS.h"
 #include "Consola.h"
 #include "MonitorMemoria.h"
 #include "MonitorProcesos.h"
@@ -370,6 +371,11 @@ public:
     }
 
 private:
+    // Esta funcion se ocupa de LEER; el analisis del texto vive en
+    // AnalisisProcFS.h, separado a proposito para que se pueda probar con
+    // lineas sinteticas. Una prueba de mutacion mostro que, mientras el
+    // analisis estaba embebido aqui, romperlo no hacia fallar ningun test:
+    // los procesos reales de la maquina casi nunca tienen nombres raros.
     static bool leerProceso(const std::string& dir, double hercios, double bytesPorPag,
                             double arranque, double totalRam, ProcesoInfo& p) {
         std::ifstream f(dir + "/stat");
@@ -378,36 +384,23 @@ private:
         std::string linea;
         if (!std::getline(f, linea)) return false;
 
-        const size_t abre  = linea.find('(');
-        const size_t cierra = linea.rfind(')');    // el ULTIMO, no el primero
-        if (abre == std::string::npos || cierra == std::string::npos || cierra < abre)
-            return false;
+        const procfs::CamposStat c = procfs::analizarLineaStat(linea);
+        if (!c.ok) return false;
 
-        unsigned long long pid = 0;
-        if (!aEntero(linea.substr(0, abre), pid)) return false;
-        p.pid    = static_cast<long>(pid);
-        p.nombre = linea.substr(abre + 1, cierra - abre - 1);
+        p.pid    = c.pid;
+        p.nombre = c.nombre;
+        p.estado = c.estado;
 
-        // A partir de aca, c[0] es el campo 3 del formato de proc(5),
-        // asi que el campo N esta en c[N - 3].
-        const std::vector<std::string> c = campos(linea.substr(cierra + 1));
-        if (c.size() < 22) return false;
-
-        p.estado = c[0].empty() ? '?' : c[0][0];
-
-        unsigned long long utime = 0, stime = 0, inicio = 0, paginas = 0;
-        aEntero(c[11], utime);     // campo 14
-        aEntero(c[12], stime);     // campo 15
-        aEntero(c[19], inicio);    // campo 22
-        aEntero(c[21], paginas);   // campo 24
-
-        p.tiempoUsuario = static_cast<double>(utime) / hercios;
-        p.tiempoSistema = static_cast<double>(stime) / hercios;
+        // Aca si hace falta la plataforma: los tics por segundo y el tamano de
+        // pagina se piden a sysconf y no se codifican a mano, porque 100 y 4096
+        // son los valores de ESTA maquina, no los del formato.
+        p.tiempoUsuario = static_cast<double>(c.utime) / hercios;
+        p.tiempoSistema = static_cast<double>(c.stime) / hercios;
         p.memResidente  = static_cast<unsigned long long>(
-                              static_cast<double>(paginas) * bytesPorPag);
+                              static_cast<double>(c.paginasResidentes) * bytesPorPag);
 
         // %CPU al estilo de ps: tiempo de CPU acumulado sobre tiempo de vida.
-        const double vivo = arranque - (static_cast<double>(inicio) / hercios);
+        const double vivo = arranque - (static_cast<double>(c.starttime) / hercios);
         if (vivo > 0.0)
             p.cpuPorcentaje = 100.0 * (p.tiempoUsuario + p.tiempoSistema) / vivo;
 
@@ -523,6 +516,10 @@ ConsumoPropio sistema::consumoPropio() {
     c.ok = c.memResidente > 0;
     if (!c.ok) c.problema = "no se encontro VmRSS en /proc/self/status";
     return c;
+}
+
+long sistema::pidPropio() {
+    return static_cast<long>(getpid());
 }
 
 std::string sistema::descripcionPlataforma() {
@@ -824,6 +821,10 @@ ConsumoPropio sistema::consumoPropio() {
     c.ok = c.memResidente > 0;
     if (!c.ok) c.problema = "GetProcessMemoryInfo no devolvio datos";
     return c;
+}
+
+long sistema::pidPropio() {
+    return static_cast<long>(GetCurrentProcessId());
 }
 
 std::string sistema::descripcionPlataforma() {

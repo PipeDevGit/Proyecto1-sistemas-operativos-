@@ -108,6 +108,12 @@ std::string listarProcesos(std::vector<ProcesoInfo>& salida,
 // Consumo de recursos de esta misma herramienta.
 ConsumoPropio consumoPropio();
 
+// PID de este mismo proceso. Existe en la interfaz -y no se llama a getpid()
+// donde haga falta- para que ningun otro archivo del proyecto necesite un
+// #ifdef: getpid() es de <unistd.h> y en Windows el equivalente es
+// GetCurrentProcessId(), de <windows.h>.
+long pidPropio();
+
 // Nombre legible del sistema operativo y del compilador con que se construyo.
 // Sirve para que el informe experimental declare su entorno sin que el usuario
 // tenga que transcribirlo a mano.
