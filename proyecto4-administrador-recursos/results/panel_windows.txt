@@ -1,0 +1,68 @@
+﻿===========================================================
+ PANEL DE RECURSOS - Windows          2026-09-08 11:48:36
+===========================================================
+
+
+OsName                : Microsoft Windows 11 Pro
+OsVersion             : 10.0.26200
+CsProcessors          : {13th Gen Intel(R) Core(TM) i7-13620H}
+CsTotalPhysicalMemory : 16868990976
+
+
+
+Nucleos logicos: 16
+
+=== 1. CPU ===================================================
+Get-Counter '\Processor(_Total)\% Processor Time' -MaxSamples 2
+  OJO: la primera muestra suele venir en cero, por eso se piden dos.
+  (no se pudieron leer los contadores: El objeto especificado no se encontró en el equipo.)
+
+=== 2. MEMORIA ===================================================
+  Total:         16088 MB
+  Disponible:     1263 MB
+  Usada:         14825 MB
+
+  Equivale a MemTotal y MemAvailable de /proc/meminfo en Linux.
+
+=== 3. DISCO ===================================================
+
+Name UsadoGB LibreGB
+---- ------- -------
+C        359   116,8
+D      876,5    77,3
+
+
+
+=== 4. PROCESOS ===================================================
+Get-Process | Sort-Object WS -Descending | Select-Object -First 5
+
+   Id ProcessName    MemoriaMB   CPU_s
+   -- -----------    ---------   -----
+26892 VirtualBoxVM      2007,8 6203,83
+25652 msedgewebview2     739,4   45,17
+20404 claude             494,1  819,56
+23580 msedgewebview2       365    9,06
+ 5008 MsMpEng            362,3     n/d
+
+
+Procesos totales: 368
+
+=== 5. E/S Y CONTROLADORES  (Unidad VI) ===================================================
+Windows no expone un equivalente de /proc/interrupts al usuario.
+Lo mas cercano son los contadores de disco y la lista de drivers:
+  (contador de disco no disponible)
+
+Primeros 5 controladores cargados:
+
+Nombre módu. Nombre para mostrar    Tipo control. Fecha de vínculo      
+============ ====================== ============= ======================
+1394ohci     Controladora de host c Kernel                              
+3ware        3ware                  Kernel        18/5/2015 04:28:03    
+ACPI         Controlador Microsoft  Kernel                              
+
+=== 6. LO MISMO, SEGUN LA HERRAMIENTA DEL PROYECTO ===================================================
+
+===========================================================
+ Los numeros de los apartados 2 y 4 deben coincidir con los
+ del apartado 6. Si no coincidieran, la herramienta estaria mal.
+===========================================================

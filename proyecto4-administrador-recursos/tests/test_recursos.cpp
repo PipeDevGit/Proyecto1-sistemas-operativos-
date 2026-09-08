@@ -425,26 +425,40 @@ static void pruebasMonitoreo() {
             "43. el listado incluye el propio proceso de pruebas",
             "que el PID de este binario aparezca entre los listados");
 
+    // El invariante tiene que valer en las DOS plataformas. Decir "todos los PID
+    // son positivos" es cierto en Linux -el proceso 0 es el planificador y no
+    // aparece en /proc- pero falso en Windows, donde el PID 0 existe: es el
+    // proceso inactivo del sistema, que CreateToolhelp32Snapshot enumera y el
+    // Administrador de tareas muestra.
+    //
+    // Lo que si vale en ambas, y sigue detectando un parseo desalineado, es que
+    // ningun PID sea negativo y que a lo sumo uno sea cero.
     bool pidsValidos = true, nombresValidos = true;
+    int  ceros = 0;
     for (const ProcesoInfo& p : procesos) {
-        if (p.pid <= 0)        pidsValidos = false;
+        if (p.pid <  0)        pidsValidos = false;
+        if (p.pid == 0)        ++ceros;
         if (p.nombre.empty())  nombresValidos = false;
     }
     revisar(pidsValidos,
-            "44. todos los PID son positivos",
-            "un PID cero o negativo indicaria un parseo desalineado");
+            "44. ningun PID es negativo",
+            "un PID negativo solo puede venir de un parseo desalineado");
+
+    revisar(ceros <= 1,
+            "45. a lo sumo un PID igual a cero",
+            "en Windows el 0 es el proceso inactivo; varios ceros serian un parseo roto");
 
     revisar(nombresValidos,
-            "45. ningun proceso queda sin nombre",
+            "46. ningun proceso queda sin nombre",
             "un nombre vacio indicaria que fallo la extraccion del campo comm");
 
     const ConsumoPropio c = sistema::consumoPropio();
     revisar(c.ok && c.memResidente > 0,
-            "46. mide el consumo de la propia herramienta",
+            "47. mide el consumo de la propia herramienta",
             "resultado experimental obligatorio del enunciado");
 
     revisar(!sistema::descripcionPlataforma().empty(),
-            "47. informa la plataforma y el compilador",
+            "48. informa la plataforma y el compilador",
             "para que el informe declare su entorno sin transcribirlo a mano");
 }
 
@@ -469,11 +483,11 @@ static void pruebasAnalisisStat() {
     {
         const procfs::CamposStat c = procfs::analizarLineaStat("1234 (bash)" + base);
         revisar(c.ok && c.pid == 1234 && c.nombre == "bash" && c.estado == 'R',
-                "48. analiza una linea normal",
+                "49. analiza una linea normal",
                 "pid 1234, nombre bash, estado R");
         revisar(c.utime == 111 && c.stime == 222 &&
                 c.starttime == 333 && c.paginasResidentes == 444,
-                "49. los campos numericos caen en su posicion",
+                "50. los campos numericos caen en su posicion",
                 "utime 111, stime 222, starttime 333, rss 444");
     }
 
@@ -482,10 +496,10 @@ static void pruebasAnalisisStat() {
         const procfs::CamposStat c =
             procfs::analizarLineaStat("2731 (mi (prog) raro)" + base);
         revisar(c.ok && c.nombre == "mi (prog) raro",
-                "50. extrae un nombre con espacios y parentesis",
+                "51. extrae un nombre con espacios y parentesis",
                 "que el nombre sea 'mi (prog) raro' completo");
         revisar(c.estado == 'R' && c.utime == 111 && c.paginasResidentes == 444,
-                "51. los campos NO se corren con un nombre asi",
+                "52. los campos NO se corren con un nombre asi",
                 "que buscar el ultimo ) mantenga alineados estado, utime y rss");
     }
 
@@ -494,21 +508,21 @@ static void pruebasAnalisisStat() {
         const procfs::CamposStat c =
             procfs::analizarLineaStat("99 (Web Content)" + base);
         revisar(c.ok && c.nombre == "Web Content" && c.utime == 111,
-                "52. tolera un nombre con espacios",
+                "53. tolera un nombre con espacios",
                 "que 'Web Content' se lea entero y no corra los campos");
     }
 
     {
         const procfs::CamposStat c = procfs::analizarLineaStat("777 (corto) R 1 2 3");
         revisar(!c.ok,
-                "53. rechaza una linea truncada",
+                "54. rechaza una linea truncada",
                 "que una linea sin los 24 campos no se de por buena");
     }
 
     {
         const procfs::CamposStat c = procfs::analizarLineaStat("basura sin formato");
         revisar(!c.ok,
-                "54. rechaza una linea sin parentesis",
+                "55. rechaza una linea sin parentesis",
                 "que no se invente un proceso a partir de texto cualquiera");
     }
 }

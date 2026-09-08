@@ -65,8 +65,17 @@ struct ConsumoPropio {
     std::string problema;
     std::string fuente;
 
-    unsigned long long memResidente = 0;   // VmRSS: lo que ocupa en RAM
-    unsigned long long memVirtual   = 0;   // VmSize: espacio de direcciones reservado
+    unsigned long long memResidente = 0;   // lo que ocupa en RAM ahora mismo
+
+    // El segundo numero NO significa lo mismo en las dos plataformas, y por eso
+    // viene con su etiqueta: en Linux es VmSize, el espacio de direcciones
+    // reservado; en Windows es PrivateUsage, el compromiso de memoria del
+    // proceso. Son parientes, no equivalentes. Llamarlos igual a los dos e
+    // imprimir "memoria virtual" en ambos casos seria afirmar algo falso.
+    unsigned long long memSegunda    = 0;
+    std::string        etiquetaSegunda;    // como se llama ese numero aqui
+    std::string        explicaSegunda;     // que mide, en una frase
+
     double             tiempoUsuario = 0.0;
     double             tiempoSistema = 0.0;
 };
@@ -107,6 +116,16 @@ std::string listarProcesos(std::vector<ProcesoInfo>& salida,
 
 // Consumo de recursos de esta misma herramienta.
 ConsumoPropio consumoPropio();
+
+// Si el modelo de permisos de esta plataforma se corresponde con lo que
+// devuelve std::filesystem::permissions(), o si esa vista es una traduccion
+// con perdida en la que no se puede basar un juicio de seguridad.
+//
+// En Linux es cierto: los nueve bits son los reales, los mismos que muestra
+// 'ls -l'. En Windows es falso: el sistema usa ACL y la biblioteca estandar
+// devuelve 666 para cualquier archivo escribible y 444 para los de solo
+// lectura, derivandolo del atributo de solo lectura sin mirar la ACL.
+bool permisosSonReales();
 
 // PID de este mismo proceso. Existe en la interfaz -y no se llama a getpid()
 // donde haga falta- para que ningun otro archivo del proyecto necesite un

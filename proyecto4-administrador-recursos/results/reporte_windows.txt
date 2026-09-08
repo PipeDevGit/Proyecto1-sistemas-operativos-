@@ -1,0 +1,75 @@
+﻿
+Fuentes de datos
+  C:\Users\felim\AppData\Local\Temp\claude\D--Documents-Archivos-de-la-U-Sistemas-Operativos-Proyecto4\2aad857e-31f3-454f-839f-fbf3968b4c07\scratchpad\win\results\benchmark_windows.csv: 102 mediciones
+
+TABLA 1 - TIEMPO DE LAS OPERACIONES DE ARCHIVO (microsegundos)
+------------------------------------------------------------------------------
+  Mediana de las corridas con cache tibia. El rango muestra la dispersion.
+
+  Escenario: windows
+  Operacion           N      Mediana     Minimo     Maximo   Cache fria  us/arch
+------------------------------------------------------------------------------
+  crear              10      12145.3    11657.7    17780.5      16959.2  1214.53
+  crear             100     139419.0   119956.0   161325.0     135820.0  1394.19
+  crear            1000    1423300.0  1380710.0  1652710.0    1577550.0  1423.30
+  eliminar           10       6228.8     5568.6     7155.4       6131.0   622.88
+  eliminar          100      79198.3    73052.9    82696.7      79620.8   791.98
+  eliminar         1000     659830.0   626681.0   677657.0     649124.0   659.83
+  listar             10       9697.6     8448.6    11320.5      11180.9   969.76
+  listar            100      84933.3    81377.0    92772.1      84084.7   849.33
+  listar           1000     872650.0   858764.0   938173.0     910930.0   872.65
+  recorrer           10        102.6       96.6      122.7        166.1    10.26
+  recorrer          100        292.4      284.7      306.5        317.9     2.92
+  recorrer         1000       2306.4     2189.9     4427.1       2242.3     2.31
+  validar            10        777.3      738.4     1203.8       1103.1    77.73
+  validar           100       6951.8     6783.2     9961.4       7478.9    69.52
+  validar          1000      76009.0    69461.2    79748.9      73541.9    76.01
+
+TABLA 2 - ESCALAMIENTO FRENTE AL NUMERO DE ARCHIVOS
+------------------------------------------------------------------------------
+  Cuanto se multiplica el tiempo al multiplicar por 10 los archivos.
+  Un factor de 10 seria escalamiento lineal perfecto.
+
+  windows
+  Operacion      factor 10 -> 100 factor 100 -> 1000
+------------------------------------------------------------
+  crear                     11.5x              10.2x
+  eliminar                  12.7x               8.3x
+  listar                     8.8x              10.3x
+  recorrer                   2.8x               7.9x
+  validar                    8.9x              10.9x
+
+
+GRAFICO - COSTO POR ARCHIVO (microsegundos por archivo)
+------------------------------------------------------------------------------
+  Si el costo por archivo baja al crecer N, hay un costo fijo que se reparte.
+
+  windows
+   crear         10  ################################## 1214.53
+   crear        100  ####################################### 1394.19
+   crear       1000  ######################################## 1423.30
+   eliminar      10  ################## 622.88
+   eliminar     100  ###################### 791.98
+   eliminar    1000  ################### 659.83
+   listar        10  ########################### 969.76
+   listar       100  ######################## 849.33
+   listar      1000  ######################### 872.65
+   recorrer      10   10.26
+   recorrer     100   2.92
+   recorrer    1000   2.31
+   validar       10  ## 77.73
+   validar      100  ## 69.52
+   validar     1000  ## 76.01
+
+TABLA 3 - COSTO DE CADA RUTA DE MONITOREO DE PROCESOS
+------------------------------------------------------------------------------
+  Leer /proc no crea procesos; invocar un comando implica fork + exec.
+
+  windows
+  Ruta                                Mediana(us)     Minimo     Maximo
+----------------------------------------------------------------------
+  procesos:CreateToolhelp32Snapshot        8029.9     7432.3     8654.6
+  procesos:tasklist                      621794.0   531985.0   655738.0
+  La ruta mas rapida es 77.4 veces mas barata que la mas lenta.
+
+

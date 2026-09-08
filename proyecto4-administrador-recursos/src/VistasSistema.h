@@ -25,6 +25,7 @@
 #define VISTASSISTEMA_H
 
 #include <algorithm>
+#include <cstddef>
 #include <cstdio>
 #include <string>
 #include <vector>
@@ -200,23 +201,31 @@ inline void consumoPropio(const Estilo& e) {
         return;
     }
 
-    std::printf("  %-24s %14s\n", "Memoria residente:",
+    // El ancho de la primera columna sale del contenido y no de una constante:
+    // la etiqueta de la segunda fila la pone la plataforma, y en Windows es
+    // bastante mas larga que en Linux. Con un ancho fijo, la cifra se salia de
+    // la columna en una de las dos. Es el mismo criterio que el recuadro del
+    // encabezado, que se corrigio por esto mismo en el Proyecto 3.
+    const int ancho = static_cast<int>(
+        std::max<std::size_t>(24, c.etiquetaSegunda.size() + 1));
+
+    std::printf("  %-*s %14s\n", ancho, "Memoria residente:",
                 consola::formatearBytes(c.memResidente).c_str());
-    std::printf("  %-24s %14s\n", "Memoria virtual:",
-                consola::formatearBytes(c.memVirtual).c_str());
-    std::printf("  %-24s %11.4f s\n", "Tiempo de usuario:", c.tiempoUsuario);
-    std::printf("  %-24s %11.4f s\n", "Tiempo de sistema:", c.tiempoSistema);
+    // La etiqueta la pone la plataforma: el segundo numero no mide lo mismo en
+    // Linux que en Windows, y ponerle a los dos "memoria virtual" seria dar a
+    // entender una equivalencia que no existe.
+    std::printf("  %-*s %14s\n", ancho, (c.etiquetaSegunda + ":").c_str(),
+                consola::formatearBytes(c.memSegunda).c_str());
+    std::printf("  %-*s %11.4f s\n", ancho, "Tiempo de usuario:", c.tiempoUsuario);
+    std::printf("  %-*s %11.4f s\n", ancho, "Tiempo de sistema:", c.tiempoSistema);
 
     std::printf("\n  %sFuente: %s%s\n", e.gris(), c.fuente.c_str(), e.fin());
-    std::printf("  %sLa residente es lo que ocupa en RAM de verdad; la virtual es el espacio%s\n",
+    std::printf("  %sLa residente es lo que ocupa en RAM de verdad.%s\n", e.gris(), e.fin());
+    std::printf("  %s%s: %s.%s\n", e.gris(), c.etiquetaSegunda.c_str(),
+                c.explicaSegunda.c_str(), e.fin());
+    std::printf("  %sLos dos numeros no miden lo mismo en Linux y en Windows: cada sistema%s\n",
                 e.gris(), e.fin());
-    std::printf("  %sde direcciones reservado, que incluye lo mapeado pero nunca tocado. Es la%s\n",
-                e.gris(), e.fin());
-    std::printf("  %sdistincion RSS contra VSZ de la Unidad IV. En esta herramienta las dos%s\n",
-                e.gris(), e.fin());
-    std::printf("  %scifras quedan cerca porque casi todo lo que mapea lo usa; la brecha se%s\n",
-                e.gris(), e.fin());
-    std::printf("  %sabre en programas que reservan mucho mas de lo que llegan a tocar.%s\n",
+    std::printf("  %sexpone lo que tiene, y por eso la etiqueta cambia con la plataforma.%s\n",
                 e.gris(), e.fin());
     std::printf("\n  %sLos tiempos salen en cero cuando la herramienta lleva menos de un tic de%s\n",
                 e.gris(), e.fin());

@@ -1,0 +1,86 @@
+==============================================================================
+ COMPARATIVA ENTRE PLATAFORMAS - Proyecto 4
+ Generado por herramientas, no transcrito a mano.
+==============================================================================
+
+--- Entornos ---------------------------------------------------------------
+  Linux  : Ubuntu 26.04 LTS sobre VirtualBox, g++ 15.2.0, 6 nucleos, 7.2 GB
+  Windows: Windows 11 Pro 10.0.26200, g++ 16.2.0 (MinGW-w64 UCRT),
+           16 nucleos logicos, 15.7 GB, Windows Defender ACTIVO
+
+  Los dos entornos NO son comparables como maquinas: uno es una maquina
+  virtual con 6 nucleos y el otro el anfitrion con 16. Lo que si tiene
+  sentido comparar es la FORMA de las diferencias entre operaciones dentro
+  de cada sistema, no las cifras absolutas de uno contra el otro.
+
+--- Operaciones de archivo (mediana en microsegundos) ----------------------
+
+  Operacion       N          Linux        Windows  Win/Linux
+  ------------------------------------------------------------
+  validar        10          344.8          777.3       2.3x
+  validar       100         4546.5         6951.8       1.5x
+  validar      1000        35883.8        76009.0       2.1x
+  crear          10         2517.8        12145.3       4.8x
+  crear         100        23481.7       139419.0       5.9x
+  crear        1000       229998.0      1423300.0       6.2x
+  recorrer       10           47.5          102.6       2.2x
+  recorrer      100          115.3          292.4       2.5x
+  recorrer     1000         1417.4         2306.4       1.6x
+  listar         10          420.4         9697.6      23.1x
+  listar        100         4218.0        84933.3      20.1x
+  listar       1000        37120.6       872650.0      23.5x
+  eliminar       10          360.4         6228.8      17.3x
+  eliminar      100         8663.3        79198.3       9.1x
+  eliminar     1000        87044.9       659830.0       7.6x
+
+--- Costo por archivo con N=1000 (microsegundos por archivo) ---------------
+
+  Operacion           Linux        Windows
+  ------------------------------------------
+  validar             35.88          76.01
+  crear              230.00        1423.30
+  recorrer             1.42           2.31
+  listar              37.12         872.65
+  eliminar            87.04         659.83
+
+--- Leer metadatos frente a solo recorrer el directorio ---------------------
+
+  Con 1000 archivos, cuantas veces mas cuesta 'listar' que 'recorrer':
+
+    Linux  :     26.2 veces
+    Windows:    378.4 veces
+
+  Recorrer el directorio cuesta parecido en los dos sistemas. Lo que se
+  dispara en Windows es leer los metadatos de CADA archivo. Esa es la
+  diferencia estructural entre las dos plataformas que muestran estos
+  datos, y no depende de que una maquina sea mas rapida que la otra:
+  es una relacion dentro de cada sistema.
+
+--- Monitoreo de procesos: API frente a comando externo --------------------
+
+  Ruta                                  Mediana(us)
+  --------------------------------------------------
+  Linux /proc                                5146.0
+  Linux ps                                  86991.8
+  Windows CreateToolhelp32Snapshot           8029.9
+  Windows tasklist                         621794.0
+
+  En Linux    el comando externo cuesta   16.9 veces mas que la API.
+  En Windows  el comando externo cuesta   77.4 veces mas que la API.
+
+  En las dos plataformas la ruta que crea un proceso es mucho mas cara que
+  la que solo lee informacion, y en Windows la diferencia es aun mayor:
+  crear un proceso ahi es mas costoso que un fork en Linux.
+
+--- Lo que estos numeros NO permiten afirmar --------------------------------
+
+  1. Que Windows 'sea mas lento'. Las dos maquinas son distintas, y ademas
+     el equipo Windows tiene Windows Defender activo, que inspecciona cada
+     archivo que se crea. Con 1000 archivos por corrida, eso pesa. No se
+     desactivo para medir: seria medir un sistema que nadie usa asi.
+  2. Que la diferencia sea del sistema de archivos. Se midio NTFS contra
+     ext4 en maquinas distintas y con antivirus de por medio; separar esas
+     causas exigiria un experimento que no se hizo.
+  3. Que los tiempos sean estables. La dispersion en la VM es grande, y
+     esta declarada en results/reporte.txt.
+

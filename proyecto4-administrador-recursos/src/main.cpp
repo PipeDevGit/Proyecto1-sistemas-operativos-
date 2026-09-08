@@ -226,7 +226,12 @@ void verListado(const Estilo& e, const Sandbox& caja) {
             continue;
         }
 
-        const Riesgo   rg  = permisos::evaluar(en.permisos, en.esDirectorio);
+        // Igual que en la auditoria: donde el modelo de permisos no es el real,
+        // no se marca riesgo. El octal se sigue mostrando porque es lo que
+        // informa la biblioteca estandar; lo que no se emite es el juicio.
+        const Riesgo   rg  = sistema::permisosSonReales()
+                           ? permisos::evaluar(en.permisos, en.esDirectorio)
+                           : Riesgo::Ninguno;
         const char*    col = colorRiesgo(e, rg);
         if (rg != Riesgo::Ninguno) ++conRiesgo;
 
@@ -314,6 +319,38 @@ void verAuditoria(const Estilo& e, const Sandbox& caja) {
                 e.gris(), e.fin());
     std::printf("  %sEs el equivalente de  find . -perm -o+w  del laboratorio 5.%s\n\n",
                 e.gris(), e.fin());
+
+    // Antes de emitir cualquier veredicto, se comprueba si el modelo de
+    // permisos de esta plataforma es el real. Donde no lo es, marcar archivos
+    // como peligrosos seria inventar: la traduccion de la ACL a nueve bits deja
+    // el bit de escritura para "otros" siempre puesto, y TODOS los archivos
+    // normales saldrian marcados. Una alerta que salta siempre no es una alerta.
+    if (!sistema::permisosSonReales()) {
+        consola::aviso(e, "en esta plataforma no se puede auditar permisos con fiabilidad.");
+        std::printf("\n  %sEl sistema usa listas de control de acceso (ACL), donde cada entrada%s\n",
+                    e.gris(), e.fin());
+        std::printf("  %sda permisos a un usuario o grupo concreto. Eso no cabe en los nueve%s\n",
+                    e.gris(), e.fin());
+        std::printf("  %sbits del modelo Unix, y std::filesystem::permissions() lo aproxima a%s\n",
+                    e.gris(), e.fin());
+        std::printf("  %spartir del atributo de solo lectura: devuelve 666 para cualquier%s\n",
+                    e.gris(), e.fin());
+        std::printf("  %sarchivo escribible y 444 para los de solo lectura.%s\n\n",
+                    e.gris(), e.fin());
+        std::printf("  %sSe comprobo creando un archivo normal: la herramienta lo veia como%s\n",
+                    e.gris(), e.fin());
+        std::printf("  %s666 (escribible por cualquiera) mientras icacls mostraba que solo%s\n",
+                    e.gris(), e.fin());
+        std::printf("  %stenian acceso SYSTEM, Administradores y el propio usuario.%s\n\n",
+                    e.gris(), e.fin());
+        std::printf("  %sPara auditar de verdad en este sistema:  icacls ARCHIVO%s\n",
+                    e.gris(), e.fin());
+        std::printf("  %sEl listado (opcion 1) sigue mostrando el octal, que es informacion%s\n",
+                    e.gris(), e.fin());
+        std::printf("  %sreal de la biblioteca estandar; lo que no se emite es el veredicto.%s\n",
+                    e.gris(), e.fin());
+        return;
+    }
 
     std::vector<EntradaArchivo> riesgosas;
     size_t revisadas = 0;

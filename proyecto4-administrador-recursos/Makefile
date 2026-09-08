@@ -25,10 +25,24 @@ ifeq ($(OS),Windows_NT)
   BIN   = administrador.exe
   LIBS  = -lpsapi
   HILOS =
+  # -static enlaza libstdc++, libgcc y libwinpthread dentro del ejecutable.
+  # Sin esto el .exe solo arranca si el directorio de las DLL de MSYS2 esta en
+  # el PATH; en cualquier otra maquina falla con 0xC0000139, "punto de entrada
+  # no encontrado", que no le dice nada util a quien lo recibe. Enlazado asi,
+  # el binario corre en cualquier Windows sin instalar nada.
+  EXTRA = -static
+  # mingw32-make ejecuta las recetas con cmd.exe, que no tiene 'rm'. Y 'del' no
+  # acepta barras normales: las interpreta como modificadores. Por eso hay que
+  # traducirlas con $(subst) antes de pasarle la lista.
+  BORRAR = del /F /Q
+  ABARRA = $(subst /,\,$(1))
 else
   BIN   = administrador
   LIBS  =
   HILOS = -pthread
+  EXTRA =
+  BORRAR = rm -f
+  ABARRA = $(1)
 endif
 
 # --- Fuentes ----------------------------------------------------------------
@@ -50,7 +64,7 @@ all: $(BIN) $(BENCHMARK) $(CARGA) $(REPORTE)
 # Lleva -pthread porque la demostracion de E/S de la Unidad VI usa
 # std::thread para simular el dispositivo que avisa cuando termina.
 $(BIN): $(OBJ)
-	$(CXX) $(CXXFLAGS) -o $@ $(OBJ) $(LIBS) $(HILOS)
+	$(CXX) $(CXXFLAGS) -o $@ $(OBJ) $(LIBS) $(HILOS) $(EXTRA)
 
 %.o: %.cpp $(HDR)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
@@ -60,20 +74,20 @@ $(BIN): $(OBJ)
 # simplificada escrita para el experimento.
 # Lleva -pthread porque genera su propia carga de CPU con std::thread.
 $(BENCHMARK): herramientas/benchmark.cpp src/SistemaInfo.o $(HDR)
-	$(CXX) $(CXXFLAGS) -o $@ herramientas/benchmark.cpp src/SistemaInfo.o $(LIBS) $(HILOS)
+	$(CXX) $(CXXFLAGS) -o $@ herramientas/benchmark.cpp src/SistemaInfo.o $(LIBS) $(HILOS) $(EXTRA)
 
 # La carga usa std::thread, de ahi -pthread en Linux.
 $(CARGA): herramientas/carga.cpp
-	$(CXX) $(CXXFLAGS) -o $@ herramientas/carga.cpp $(HILOS)
+	$(CXX) $(CXXFLAGS) -o $@ herramientas/carga.cpp $(HILOS) $(EXTRA)
 
 # El reporte solo lee CSV: no depende de nada del proyecto.
 $(REPORTE): herramientas/reporte.cpp
-	$(CXX) $(CXXFLAGS) -o $@ herramientas/reporte.cpp
+	$(CXX) $(CXXFLAGS) -o $@ herramientas/reporte.cpp $(EXTRA)
 
 # La suite enlaza contra SistemaInfo.o, el mismo objeto que usa la herramienta:
 # se prueba el codigo que se entrega, no una copia compilada aparte.
 $(PRUEBAS): tests/test_recursos.cpp src/SistemaInfo.o $(HDR)
-	$(CXX) $(CXXFLAGS) -o $@ tests/test_recursos.cpp src/SistemaInfo.o $(LIBS) $(HILOS)
+	$(CXX) $(CXXFLAGS) -o $@ tests/test_recursos.cpp src/SistemaInfo.o $(LIBS) $(HILOS) $(EXTRA)
 
 tests: $(PRUEBAS)
 	./$(PRUEBAS)
@@ -84,11 +98,16 @@ experimentos: all
 reporte: $(REPORTE)
 	./$(REPORTE) results/benchmark.csv
 
+# Lista unica de lo que se borra, para no repetirla en cada plataforma.
+BASURA = $(OBJ) administrador administrador.exe \
+         $(PRUEBAS) $(PRUEBAS).exe \
+         $(BENCHMARK) $(BENCHMARK).exe \
+         $(CARGA) $(CARGA).exe \
+         $(REPORTE) $(REPORTE).exe
+
+# El guion inicial le dice a make que ignore el codigo de salida: los archivos
+# que no existen no son un error de limpieza, y 'del' se queja de cada uno.
 clean:
-	rm -f $(OBJ) administrador administrador.exe \
-	      $(PRUEBAS) $(PRUEBAS).exe \
-	      $(BENCHMARK) $(BENCHMARK).exe \
-	      $(CARGA) $(CARGA).exe \
-	      $(REPORTE) $(REPORTE).exe
+	-$(BORRAR) $(call ABARRA,$(BASURA))
 
 .PHONY: all tests experimentos reporte clean

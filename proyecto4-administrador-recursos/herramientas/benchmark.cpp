@@ -82,6 +82,10 @@ using Reloj = std::chrono::steady_clock;
 
 namespace {
 
+// Sumidero de resultados: existe solo para que el compilador no pueda
+// descartar los bucles de la carga interna.
+volatile double sumidero = 0.0;
+
 // steady_clock y no system_clock: system_clock puede saltar hacia atras si el
 // sistema ajusta la hora (NTP) durante la medicion, y eso daria duraciones
 // negativas. steady_clock solo avanza.
@@ -138,9 +142,16 @@ public:
         }
         for (long i = 0; i < hilos; ++i)
             equipo_.emplace_back([this] {
-                volatile double x = 0.0;
+    // El resultado se escribe en un sumidero volatile al terminar. Marcar el
+    // acumulador como volatile no alcanza: g++ 16.2.0 avisa igual de que se
+    // asigna y nunca se lee, y el proyecto se entrega sin advertencias.
+    // Escribiendo en un sumidero volatile la variable si se lee, y el
+    // compilador tampoco puede borrar el bucle, porque tiene que producir ese
+    // valor. Solo se ve compilando en Windows: g++ 15.2.0 no lo reporta.
+                double x = 0.0;
                 while (seguir_.load(std::memory_order_relaxed))
                     for (int k = 1; k < 10000; ++k) x += 1.0 / static_cast<double>(k);
+                sumidero = x;
             });
     }
 

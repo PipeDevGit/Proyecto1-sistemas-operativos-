@@ -49,8 +49,19 @@
 #include <vector>
 
 #ifdef _WIN32
-  #define WIN32_LEAN_AND_MEAN
-  #define NOMINMAX
+  // WIN32_LEAN_AND_MEAN recorta lo que arrastra <windows.h>; NOMINMAX evita que
+  // defina min y max como macros, que rompen la biblioteca estandar.
+  //
+  // Los dos van con guarda porque la biblioteca estandar de MSYS2 ya define
+  // NOMINMAX por su cuenta en os_defines.h: definirlo a secas compila igual
+  // pero emite una advertencia de redefinicion, y el proyecto se entrega sin
+  // ninguna. Solo se ve compilando en Windows.
+  #ifndef WIN32_LEAN_AND_MEAN
+    #define WIN32_LEAN_AND_MEAN
+  #endif
+  #ifndef NOMINMAX
+    #define NOMINMAX
+  #endif
   #include <windows.h>
   #include <psapi.h>
   #include <tlhelp32.h>
@@ -124,31 +135,16 @@ bool comandoExiste(const char* programa) {
     return ejecutar(sonda).ok;
 }
 
-// Parte una linea en campos separados por espacios en blanco.
-std::vector<std::string> campos(const std::string& linea) {
-    std::vector<std::string> v;
-    std::istringstream ss(linea);
-    std::string c;
-    while (ss >> c) v.push_back(c);
-    return v;
-}
-
 // Convierte a numero sin lanzar. Las fuentes de este archivo son texto que
 // produce el sistema operativo, y un campo inesperado no debe tumbar la
 // herramienta: se descarta esa entrada y se sigue con las demas.
+//
+// Esta si la usan las dos plataformas: Linux para /proc y Windows para la
+// salida de tasklist.
 bool aEntero(const std::string& s, unsigned long long& destino) {
     if (s.empty()) return false;
     char* fin = nullptr;
     const unsigned long long v = std::strtoull(s.c_str(), &fin, 10);
-    if (fin == s.c_str()) return false;
-    destino = v;
-    return true;
-}
-
-bool aReal(const std::string& s, double& destino) {
-    if (s.empty()) return false;
-    char* fin = nullptr;
-    const double v = std::strtod(s.c_str(), &fin);
     if (fin == s.c_str()) return false;
     destino = v;
     return true;
@@ -161,6 +157,30 @@ bool aReal(const std::string& s, double& destino) {
 // ===========================================================================
 #ifndef _WIN32
 namespace {
+
+// Parte una linea en campos separados por espacios en blanco.
+//
+// Vive aqui dentro y no en las utilidades comunes porque solo la usan los
+// proveedores de Linux: en la seccion comun quedaba definida y sin usar al
+// compilar en Windows, y -Wunused-function la reportaba. Se descubrio al
+// compilar por primera vez con g++ 16.2.0 en Windows; desde Linux es invisible.
+std::vector<std::string> campos(const std::string& linea) {
+    std::vector<std::string> v;
+    std::istringstream ss(linea);
+    std::string c;
+    while (ss >> c) v.push_back(c);
+    return v;
+}
+
+// Igual que campos(): solo la usa el proveedor 'ps', que es de Linux.
+bool aReal(const std::string& s, double& destino) {
+    if (s.empty()) return false;
+    char* fin = nullptr;
+    const double v = std::strtod(s.c_str(), &fin);
+    if (fin == s.c_str()) return false;
+    destino = v;
+    return true;
+}
 
 // -------------------------------------------------------------------------
 // Memoria por /proc/meminfo
@@ -491,8 +511,10 @@ ConsumoPropio sistema::consumoPropio() {
         if (campo.size() < 2) continue;
         unsigned long long v = 0;
         if (campo[0] == "VmRSS:"  && aEntero(campo[1], v)) c.memResidente = v * 1024ULL;
-        if (campo[0] == "VmSize:" && aEntero(campo[1], v)) c.memVirtual   = v * 1024ULL;
+        if (campo[0] == "VmSize:" && aEntero(campo[1], v)) c.memSegunda   = v * 1024ULL;
     }
+    c.etiquetaSegunda = "Memoria virtual (VmSize)";
+    c.explicaSegunda  = "espacio de direcciones reservado, incluido lo mapeado pero nunca tocado";
 
     std::ifstream g("/proc/self/stat");
     if (g) {
@@ -521,6 +543,8 @@ ConsumoPropio sistema::consumoPropio() {
 long sistema::pidPropio() {
     return static_cast<long>(getpid());
 }
+
+bool sistema::permisosSonReales() { return true; }
 
 std::string sistema::descripcionPlataforma() {
     std::string s = "Linux";
@@ -799,15 +823,22 @@ ConsumoPropio sistema::consumoPropio() {
 
     const HANDLE yo = GetCurrentProcess();   // pseudo-handle, no hay que cerrarlo
 
-    PROCESS_MEMORY_COUNTERS contadores;
+    // La variante EX trae PrivateUsage, que es el compromiso de memoria del
+    // proceso. Es lo mas cercano al VmSize de Linux que expone Windows por esta
+    // via. La version corriente de la estructura solo llega hasta
+    // PeakWorkingSetSize, que es el pico de memoria RESIDENTE y no tiene nada
+    // que ver con el espacio de direcciones: usarlo como "memoria virtual"
+    // producia un numero identico al residente y una explicacion falsa.
+    PROCESS_MEMORY_COUNTERS_EX contadores;
     std::memset(&contadores, 0, sizeof(contadores));
     contadores.cb = sizeof(contadores);
-    if (GetProcessMemoryInfo(yo, &contadores, sizeof(contadores))) {
+    if (GetProcessMemoryInfo(yo, reinterpret_cast<PROCESS_MEMORY_COUNTERS*>(&contadores),
+                             sizeof(contadores))) {
         c.memResidente = contadores.WorkingSetSize;
-        // Windows no expone un VmSize equivalente por esta via; lo mas cercano
-        // es el pico de conjunto de trabajo. Se informa como tal en la vista.
-        c.memVirtual   = contadores.PeakWorkingSetSize;
+        c.memSegunda   = contadores.PrivateUsage;
     }
+    c.etiquetaSegunda = "Compromiso de memoria (PrivateUsage)";
+    c.explicaSegunda  = "memoria que el sistema se comprometio a darle, en RAM o en el archivo de paginacion";
 
     FILETIME creacion, fin, kernel, usuario;
     if (GetProcessTimes(yo, &creacion, &fin, &kernel, &usuario)) {
@@ -826,6 +857,13 @@ ConsumoPropio sistema::consumoPropio() {
 long sistema::pidPropio() {
     return static_cast<long>(GetCurrentProcessId());
 }
+
+// Falso a proposito. Se comprobo creando un archivo normal y comparando:
+//   la herramienta reportaba  666 rw-rw-rw-
+//   icacls reportaba          solo SYSTEM, Administradores y el propio usuario
+// El bit de escritura para "otros" esta siempre puesto, asi que un juicio de
+// riesgo basado en el seria un falso positivo en todos los archivos.
+bool sistema::permisosSonReales() { return false; }
 
 std::string sistema::descripcionPlataforma() {
     std::string s = "Windows";
