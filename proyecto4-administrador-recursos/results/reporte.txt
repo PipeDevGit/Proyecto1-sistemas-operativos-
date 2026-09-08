@@ -1,0 +1,153 @@
+
+Fuentes de datos
+  results/benchmark.csv: 204 mediciones
+
+TABLA 1 - TIEMPO DE LAS OPERACIONES DE ARCHIVO (microsegundos)
+------------------------------------------------------------------------------
+  Mediana de las corridas con cache tibia. El rango muestra la dispersion.
+
+  Escenario: con_carga
+  Operacion           N      Mediana     Minimo     Maximo   Cache fria  us/arch
+------------------------------------------------------------------------------
+  crear              10       4113.5      602.5     4668.3       2278.7   411.35
+  crear             100      26928.3    15779.8    35679.1      28264.2   269.28
+  crear            1000     236986.0   161100.0   402810.0     141996.0   236.99
+  eliminar           10        522.4      351.4     3408.3        298.3    52.24
+  eliminar          100       9922.6     4621.6    22663.2       8337.5    99.23
+  eliminar         1000     165008.0    47366.7   205653.0      53750.0   165.01
+  listar             10        307.0      178.3     7699.6       3345.6    30.70
+  listar            100       4845.7     2789.1     9531.0       3553.6    48.46
+  listar           1000      40339.7    34002.0    52112.0      38290.4    40.34
+  recorrer           10         60.4       33.4       85.2         79.6     6.04
+  recorrer          100        175.7      110.7      869.4        103.9     1.76
+  recorrer         1000       1159.9      712.3     3608.3       3390.2     1.16
+  validar            10        275.3      205.3     1403.3        301.7    27.53
+  validar           100       7047.5     4625.0     8430.9       6081.4    70.47
+  validar          1000      48146.6    31259.7    80851.2      37956.2    48.15
+
+  Escenario: sin_carga
+  Operacion           N      Mediana     Minimo     Maximo   Cache fria  us/arch
+------------------------------------------------------------------------------
+  crear              10       2517.8     1605.5     4889.2       2527.9   251.78
+  crear             100      23481.7    18784.1    33053.7      15227.7   234.82
+  crear            1000     229998.0   204093.0   320933.0     240602.0   230.00
+  eliminar           10        360.4      309.7     1744.5        332.3    36.04
+  eliminar          100       8663.3     6087.8    15495.3       5602.1    86.63
+  eliminar         1000      87044.9    64569.3   197771.0      89005.1    87.04
+  listar             10        420.4      225.4     1476.6        220.4    42.04
+  listar            100       4218.0     2504.0    18227.0       4273.5    42.18
+  listar           1000      37120.6    32057.3    47581.0      32184.7    37.12
+  recorrer           10         47.5       35.9      382.0         51.7     4.75
+  recorrer          100        115.3      112.4      506.6        510.8     1.15
+  recorrer         1000       1417.4     1077.3     1645.1       1137.5     1.42
+  validar            10        344.8      170.5      492.3        366.9    34.48
+  validar           100       4546.5     2007.0     7164.1       5869.3    45.46
+  validar          1000      35883.8    29474.6    44000.1      40588.1    35.88
+
+TABLA 2 - ESCALAMIENTO FRENTE AL NUMERO DE ARCHIVOS
+------------------------------------------------------------------------------
+  Cuanto se multiplica el tiempo al multiplicar por 10 los archivos.
+  Un factor de 10 seria escalamiento lineal perfecto.
+
+  con_carga
+  Operacion      factor 10 -> 100 factor 100 -> 1000
+------------------------------------------------------------
+  crear                      6.5x               8.8x
+  eliminar                  19.0x              16.6x
+  listar                    15.8x               8.3x
+  recorrer                   2.9x               6.6x
+  validar                   25.6x               6.8x
+
+  sin_carga
+  Operacion      factor 10 -> 100 factor 100 -> 1000
+------------------------------------------------------------
+  crear                      9.3x               9.8x
+  eliminar                  24.0x              10.0x
+  listar                    10.0x               8.8x
+  recorrer                   2.4x              12.3x
+  validar                   13.2x               7.9x
+
+
+GRAFICO - COSTO POR ARCHIVO (microsegundos por archivo)
+------------------------------------------------------------------------------
+  Si el costo por archivo baja al crecer N, hay un costo fijo que se reparte.
+
+  con_carga
+   crear         10  ######################################## 411.35
+   crear        100  ########################## 269.28
+   crear       1000  ####################### 236.99
+   eliminar      10  ##### 52.24
+   eliminar     100  ########## 99.23
+   eliminar    1000  ################ 165.01
+   listar        10  ### 30.70
+   listar       100  ##### 48.46
+   listar      1000  #### 40.34
+   recorrer      10  # 6.04
+   recorrer     100   1.76
+   recorrer    1000   1.16
+   validar       10  ### 27.53
+   validar      100  ####### 70.47
+   validar     1000  ##### 48.15
+
+  sin_carga
+   crear         10  ######################################## 251.78
+   crear        100  ##################################### 234.82
+   crear       1000  ##################################### 230.00
+   eliminar      10  ###### 36.04
+   eliminar     100  ############## 86.63
+   eliminar    1000  ############## 87.04
+   listar        10  ####### 42.04
+   listar       100  ####### 42.18
+   listar      1000  ###### 37.12
+   recorrer      10  # 4.75
+   recorrer     100   1.15
+   recorrer    1000   1.42
+   validar       10  ##### 34.48
+   validar      100  ####### 45.46
+   validar     1000  ###### 35.88
+
+TABLA 3 - COSTO DE CADA RUTA DE MONITOREO DE PROCESOS
+------------------------------------------------------------------------------
+  Leer /proc no crea procesos; invocar un comando implica fork + exec.
+
+  con_carga
+  Ruta                                Mediana(us)     Minimo     Maximo
+----------------------------------------------------------------------
+  procesos:/proc                          10565.6     6224.9    13970.3
+  procesos:ps                           1405730.0    43860.7 25759900.0
+  La ruta mas rapida es 133.0 veces mas barata que la mas lenta.
+
+  sin_carga
+  Ruta                                Mediana(us)     Minimo     Maximo
+----------------------------------------------------------------------
+  procesos:/proc                           5146.0     4151.1     7033.4
+  procesos:ps                             86991.8    62913.6   104455.0
+  La ruta mas rapida es 16.9 veces mas barata que la mas lenta.
+
+
+TABLA 4 - EFECTO DE LA CARGA DEL SISTEMA
+------------------------------------------------------------------------------
+  Cuanto se degrada cada operacion con el sistema bajo presion.
+
+  Operacion           N      sin_carga      con_carga degradacion
+------------------------------------------------------------------------------
+  crear              10         2517.8         4113.5      +63.4%
+  crear             100        23481.7        26928.3      +14.7%
+  crear            1000       229998.0       236986.0       +3.0%
+  eliminar           10          360.4          522.4      +44.9%
+  eliminar          100         8663.3         9922.6      +14.5%
+  eliminar         1000        87044.9       165008.0      +89.6%
+  listar             10          420.4          307.0      -27.0%
+  listar            100         4218.0         4845.7      +14.9%
+  listar           1000        37120.6        40339.7       +8.7%
+  recorrer           10           47.5           60.4      +27.1%
+  recorrer          100          115.3          175.7      +52.3%
+  recorrer         1000         1417.4         1159.9      -18.2%
+  validar            10          344.8          275.3      -20.1%
+  validar           100         4546.5         7047.5      +55.0%
+  validar          1000        35883.8        48146.6      +34.2%
+
+  La referencia es el sistema en reposo. Un porcentaje positivo significa
+  que la carga hizo la operacion mas lenta, que es lo esperable. Si alguno
+  saliera negativo seria ruido de la maquina, no una mejora real.
+

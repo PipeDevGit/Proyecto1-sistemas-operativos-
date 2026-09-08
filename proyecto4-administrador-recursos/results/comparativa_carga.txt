@@ -1,0 +1,104 @@
+===========================================================
+ COMPARATIVA DE CARGA - Proyecto 4
+ Generado por scripts/experimentos.sh el 2026-09-08 02:22:32
+===========================================================
+
+--- Entorno ---------------------------------------------
+Linux UbuntuVM 7.0.0-30-generic #30-Ubuntu SMP PREEMPT_DYNAMIC Fri Jul 31 18:22:54 UTC 2026 x86_64 GNU/Linux
+Compilador: g++ (Ubuntu 15.2.0-16ubuntu1) 15.2.0
+Nucleos logicos: 6
+
+--- Composicion de la carga ------------------------------
+Interna (dentro del proceso que mide): 1000 MB tocados, 3 hilos
+Externas (aportan procesos):           2 x 200 MB, 1 hilo c/u
+Total: 1400 MB y 5 hilos sobre 6 nucleos
+
+NOTA SOBRE LA MEDICION DE CPU
+  Se calcula por diferencia de /proc/stat y no leyendo la primera linea
+  de vmstat: esa primera linea es el promedio DESDE EL ARRANQUE del
+  sistema, no el instante actual.
+
+PRECONDICION VERIFICADA
+  Se espero a que la carga media de 1 minuto bajara de 1.5 antes de
+  medir el baseline. Valor al empezar: 0.13
+
+--- Estado del sistema EN REPOSO ---------------------------------------------
+
+Uso de CPU en los ultimos 3s: 0%
+  (calculado por diferencia de /proc/stat; ver el comentario del script
+   sobre por que no se usa la primera linea de vmstat)
+
+Carga media (1, 5 y 15 minutos): 0.13 5.01 9.89
+  (en esta maquina hay 6 nucleos logicos: 6.0 seria saturacion)
+
+$ free -h
+               total        used        free      shared  buff/cache   available
+Mem:           7.2Gi       1.3Gi       5.0Gi       1.1Mi       1.2Gi       6.0Gi
+Swap:             0B          0B          0B
+
+Procesos totales: 188
+
+Procesos de carga activos: 0
+0
+
+$ ps -eo pid,pcpu,pmem,rss,stat,comm --sort=-pcpu | head -8
+    PID %CPU %MEM   RSS STAT COMMAND
+  10578  200  0.0  4392 R    ps
+  10545  2.0  0.0  3908 Ss   bash
+   1470  0.5  6.7 510712 Sl  MainThread
+   9863  0.3  0.1 12240 Ss   systemd-network
+   9862  0.3  0.1  9736 Ss   systemd-logind
+  10564  0.3  0.0  3916 S    bash
+   6482  0.2  0.0     0 I    kworker/2:3-events
+
+--- Muestreo DURANTE el benchmark (sin_carga) ----------------
+  Cada linea es una foto tomada mientras la medicion estaba corriendo.
+  instante   carga1m    mem_usada   procesos   cargas
+         0s     0.20      1319 MB        189        0
+
+--- Muestreo DURANTE el benchmark (con_carga) ----------------
+  Cada linea es una foto tomada mientras la medicion estaba corriendo.
+  instante   carga1m    mem_usada   procesos   cargas
+         0s     0.40      1780 MB        195        2
+         5s     0.61      2766 MB        192        2
+        10s     1.69      1768 MB        192        2
+
+--- Validez de la corrida --------------------------------
+Carga interna: presente en TODAS las mediciones de con_carga por
+  construccion, porque vive dentro del proceso que mide. Los dos
+  muestreos de mas arriba permiten comprobarlo: la memoria usada y la
+  carga media son visiblemente mayores durante con_carga que durante
+  sin_carga, y vuelven a bajar cuando el benchmark termina.
+
+Instancias externas: 2 vivas al empezar, 2 al terminar,
+  de 2 lanzadas. Aportan procesos; el experimento no depende de ellas.
+
+--- Estado del sistema DESPUES DE LA CARGA ---------------------------------------------
+
+Uso de CPU en los ultimos 3s: 0%
+  (calculado por diferencia de /proc/stat; ver el comentario del script
+   sobre por que no se usa la primera linea de vmstat)
+
+Carga media (1, 5 y 15 minutos): 3.19 3.91 8.43
+  (en esta maquina hay 6 nucleos logicos: 6.0 seria saturacion)
+
+$ free -h
+               total        used        free      shared  buff/cache   available
+Mem:           7.2Gi       1.3Gi       5.0Gi       1.1Mi       1.2Gi       5.9Gi
+Swap:             0B          0B          0B
+
+Procesos totales: 191
+
+Procesos de carga activos: 0
+0
+
+$ ps -eo pid,pcpu,pmem,rss,stat,comm --sort=-pcpu | head -8
+    PID %CPU %MEM   RSS STAT COMMAND
+  10943  100  0.0  4392 R    ps
+  10944 50.0  0.1  7812 S    head
+  10931  0.9  0.0  3948 S    bash
+   1470  0.6  7.0 538576 Sl  MainThread
+  10748  0.2  0.0     0 I<   kworker/0:0H-kblockd
+   6482  0.2  0.0     0 I    kworker/2:3-mm_percpu_wq
+   9862  0.2  0.1  9736 Ss   systemd-logind
+
